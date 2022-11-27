@@ -1,0 +1,52 @@
+{
+    "menu_description": "CDC Starter Kit",
+    "site_title": "SAP Customer Data Cloud Starter Kit",
+    "site_description": "Sample Site with basic Customer Data Cloud capabilities",
+    "menu_bg_color": "white",
+    "menu_bg_color_hover": "#1d87ff2a",
+    "menu_text_color": "#999",
+    "text_color": "#7a7a7a",
+    "background_color": "#f4f4f4",
+    "menu_pic": "sap.png",
+    "main_url": "/cdc-starter-kit/",
+    "main_pic": "sap.png",
+    "raas_prefix": "Default",
+    "lang": "en",
+    "apiKey": "4_4tFAv0nyjFwBctOZOAhSSQ",
+    "app": "PPPQ6CTTUG11IEBA3BMK",
+    "portal": {
+        "id": "PPPQ6CTTUG11IEBA3BMK",
+        "icon": "web",
+        "name" : "Portal Application",
+        "logo" : "web"
+
+    },
+    "Delegated_Admin":{
+        "logo": "group_add",
+        "action": "OPEN_DELEGATED_ADMIN"
+    } ,   
+    "Organization_Management":{
+        "logo": "group_add",
+        "action": "OPEN_DELEGATED_ADMIN"
+    } ,
+    "Marketplace":{
+        "logo": "storefront", 
+        "link": {
+            "href":"https://gigyademo.com/cdc-starter-kit/",
+            "target":"_blank"
+        }
+
+    } , 
+    "Manage_your_Account":{
+        "logo": "manage_accounts",
+        "action": "GO_TO_ACCOUNT"
+       
+
+    },
+    "Manuals":{
+        "logo": "admin_panel_settings", 
+        "link": {
+            "href":"#manuals"
+        }
+    } 
+}

@@ -1,0 +1,65 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://sap-cdc-starters.github.io/b2b-portal",
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.10.9",
+    "@mui/lab": "^5.0.0-alpha.107",
+    "@mui/material": "^5.10.13",
+    "@mui/styles": "^5.10.10",
+    "@reach/router": "latest",
+   
+    "@xstate/react": "latest",
+    "axios": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "latest",
+    "react-json-view": "^1.21.3",
+    "rxjs": "^7.5.7",
+    "xstate": "latest"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "predeploy": "npm run build -o dist",
+    "deploy": "gh-pages -d dist"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^28.1.4",
+    "@types/lodash": "^4.14.188",
+    "@types/reach__router": "latest",
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
+    "@vitejs/plugin-react": "^2.2.0",
+    "gh-pages": "^3.2.3",
+    "typescript": "^4.6.4",
+    "vite": "^3.2.3",
+    "@types/node": "^18.0.3",
+    "ts-toolbelt": "^9.6.0"
+
+  }
+}
