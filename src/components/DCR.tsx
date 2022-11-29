@@ -6,12 +6,12 @@ import {AnyState} from "xstate";
 import JsonView from "./JsonTreeViewer";
 import {Paper, Typography} from "@mui/material";
 import {DrContext} from "../../oidc-client/oidc_dr_machine";
-import {DrService} from "../machines/oidc-client/oidc_dr_machine";
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import { DrService } from '../machines/oidc-client/oidc_dr_machine';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
