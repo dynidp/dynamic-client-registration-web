@@ -13,7 +13,7 @@ const defaults = {
         token_endpoint_auth_method: 'none',
         "grant_types": ["authorization_code"],
         "response_types": null,
-        "scope": "gigya:web:jssdk",
+        "scope": "gigya_web",
 
     }
 };

@@ -3,7 +3,7 @@
 
 import {AuthorizationNotifier, AuthorizationRequest, AuthorizationResponse,
     AuthorizationServiceConfiguration,
-    BaseTokenRequestHandler, RedirectRequestHandler, StringMap, TokenRequest, TokenResponse, TokenRequestHandler, AuthorizationRequestHandler } from "@openid/appauth";
+    BaseTokenRequestHandler, RedirectRequestHandler, StringMap, TokenRequest, TokenResponse, TokenRequestHandler, AuthorizationRequestHandler, AuthorizationRequestJson } from "@openid/appauth";
 import {Client, Issuer} from "./oidc-client/oidc_dr_machine";
 import {NotificationsService} from "./notificationsMachine";
 /**
@@ -37,9 +37,10 @@ export class AppAuthJs {
     private tokenResponse: TokenResponse|undefined;
     private configuration: AuthorizationServiceConfiguration;
 
-    constructor(public snackbar: Element, private issuer:Issuer,         
-                public clientConfig:{client_id: string,  redirect_uri:string , scope:string},
-                private  notificationService: NotificationsService
+    constructor( private issuer:Issuer,         
+                public authRequest:AuthorizationRequestJson,
+                private  notificationService: NotificationsService,
+                private showMessage: (message:string)=> void
     ) {
         this.configuration= new AuthorizationServiceConfiguration(issuer.metadata as any);
          this.notifier = new AuthorizationNotifier();
@@ -66,22 +67,12 @@ export class AppAuthJs {
         });
     }
 
-    showMessage(message: string) {
-        const snackbar = (this.snackbar as any)['MaterialSnackbar'] as MaterialSnackBar;
-        snackbar.showSnackbar({message: message});
-    }
+ 
 
 
-    makeAuthorizationRequest(options:any) {
+    makeAuthorizationRequest() {
         // create a request
-        let request = new AuthorizationRequest({
-            client_id: options.client_id, //this.clientConfig.client_id,
-            redirect_uri: options.redirect_uri,
-            scope: options.scope,
-            response_type: options.response_type,
-            state: JSON.stringify(options),
-            extras: {'prompt': 'none', 'access_type': 'offline'}
-        });
+        let request = new AuthorizationRequest(this.authRequest);
         
         // @ts-ignore
         // this.notificationService.send({type:'ADD', notification:{ group:"auth", title: "authorization-request", payload:request, icon:'login'}});
@@ -109,8 +100,8 @@ export class AppAuthJs {
             }
             // use the code to make the token request.
             request = new TokenRequest({
-                client_id: this.clientConfig.client_id,
-                redirect_uri: this.clientConfig.redirect_uri,
+                client_id: this.authRequest.client_id,
+                redirect_uri: this.authRequest.redirect_uri,
                 grant_type: "code",
                 code: this.code,
                 refresh_token: undefined,
@@ -119,7 +110,7 @@ export class AppAuthJs {
         } else if (this.tokenResponse) {
             // use the token response to make a request for an access token
             request = new TokenRequest({
-                client_id: this.clientConfig.client_id,
+                client_id: this.authRequest.client_id,
                 redirect_uri: redirectUri,
                 grant_type: "refresh_token",
                 code: undefined,

@@ -24,20 +24,8 @@ import JsonView from "./JsonTreeViewer";
 import {AuthorizationRequest} from "@openid/appauth/built/authorization_request";
 import {RedirectRequestHandler} from "@openid/appauth/built/redirect_based_handler";
 import {AppAuthJs} from "../machines/AppAuth";
-import DCR from "./DCR";
-
-const defaults = {
-    authority: 'https://fidm.eu1.gigya.com/oidc/op/v1.0/4_IIUXxExoyzTQFvliBbnXsA',
-    config: {
-        client_name: "default-static-js-client-spa",
-        redirect_uris: ['https://dina.fbi.com:5173/callback/gigya-login.html'],
-        token_endpoint_auth_method: 'none',
-        "grant_types": ["authorization_code"],
-        "response_types": null,
-        "scope": "gigya:web:jssdk",
-
-    }
-};
+import DCR, {DCRClient} from "./DCR";
+ 
 const useStyles = makeStyles((theme) => ({
     paper: {
         marginTop: theme.spacing(8),
@@ -71,61 +59,34 @@ export interface SignInProps extends RouteComponentProps {
     notificationsService: NotificationsService
 }
 
-const contextSelector = (state: any) => state.context;
-const loginServiceSelector = (state: any) => state.context.login_service;
-const oidcClientSelector = (state: any) => state.context.oidc_client;
-const messageSelector = (state: any) => state.context.message;
-const clientSelector = (state: any) => state.context.client;
-const issuerSelector = (state: any) => state.context.issuer;
-const authoritySelector = (state: any) => state?.context?.authority;
-
+ const messageSelector = (state: any) => state.context.message;
+ 
 export default function SignIn({authService, notificationsService}: SignInProps) {
     const classes = useStyles();
     const [appAuth, setAppAuth] = useState<AppAuthJs>();
-    const drMachine = useInterpret(() => createDrMachine({...defaults, config: {...defaults.config}}));
-    const client = useSelector(drMachine, clientSelector);
-    const issuer = useSelector(drMachine, issuerSelector);
-    // const {client, issuer} = useSelector(drMachine, contextSelector);
-
-
-    const message = useSelector(authService, messageSelector);
-    // const authority = useSelector(oidcClient, authoritySelector);
-    // const client = useSelector(oidcClient, clientSelector);
-    // const authority = useSelector(oidcClient, authoritySelector);
-    // useAppLogger(loginService as AnyInterpreter | undefined, notificationsService.send);
-    // useAppLogger(oidcClient as AnyInterpreter | undefined, notificationsService.send);
-    useAppLogger(drMachine as AnyInterpreter | undefined, notificationsService.send);
-
-    useEffect(() => {
-        if (client) {
-
-            // @ts-ignore
-            setAppAuth(new AppAuthJs(document.querySelector('#snackbar'), issuer, client));
+ 
+     const message = useSelector(authService, messageSelector);
+ 
+    const showMessage=(message: string) =>{
+        // @ts-ignore
+        notificationsService.send({type:'ADD', notification:{ group:"app-auth", title: message, payload:{}, icon:'login', severity:'info'}});
+    } 
+      
+       const  onClientChange= ({request, issuer, client}:DCRClient) => {
+            if (client) {
+    
+                // @ts-ignore
+                setAppAuth(new AppAuthJs( issuer, request, notificationsService, showMessage));
+            }
+            return () => {
+            };
         }
-        return () => {
-        };
-    }, [client]);
-
-    const {register, handleSubmit, formState: {errors}} = useForm({
-        defaultValues: {
-            authority: client?.authority, ...client
-        }
-    });
 
 
-    const handle_oidc_dr_register = (data: any) => {
-        drMachine.send({
-            type: 'REGISTER', ...data,
-            authority: "https://fidm.eu1.gigya.com/oidc/op/v1.0/4_IIUXxExoyzTQFvliBbnXsA"
-        });
-    };
+  /* 
+    };*/
     const handle_oidc_dr = () => {
-        authService.send({type: 'LOGIN'});
-        drMachine.send({type: 'LOGIN'});
-        appAuth?.makeAuthorizationRequest({
-            ...client,
-            redirect_uri: 'https://dina.fbi.com:5173/callback/gigya-login.html'
-        });
+        appAuth?.makeAuthorizationRequest();
     };
     return (
         <Container component="main" >
@@ -136,57 +97,6 @@ export default function SignIn({authService, notificationsService}: SignInProps)
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon/>
                 </Avatar>
-                <div className={classes.paper}>
-
-                    <form
-                        className={classes.form}
-                        noValidate
-                        onSubmit={handleSubmit(handle_oidc_dr_register)}
-                    >
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="issuer"
-                            label="Issuer"
-                            autoComplete="issuer"
-                            autoFocus
-                            {...register("authority", {required: true})}
-                        />
-                        {errors && errors.authority && <span>Please enter a valid issuer</span>}
-
-                        {/*
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="registrationEndpoint"
-                            label="Registration Endpoint"
-                            autoComplete="registrationEndpoint"
-                            autoFocus
-                            {...register("issuer", {required: true})}
-                        />
-                        {errors && errors.registrationEndpoint && <span>Please enter a valid registration endpoint</span>}
-                        */}
-
-                        <Button
-                            type="submit"
-                            fullWidth
-
-                            variant="contained"
-                            color="primary"
-                            className={classes.submit}
-                        >
-                            Change Issuer
-                        </Button>
-
-
-                    </form>
-
-
-                </div>
 
                 <Button
                     type="submit"
@@ -204,7 +114,7 @@ export default function SignIn({authService, notificationsService}: SignInProps)
 
             <div className={classes.paperRow}>
 
-                <DCR drService={drMachine}/>
+                <DCR  notify={notificationsService.send}  onChange={onClientChange} />
 
             </div>
         </Container>
