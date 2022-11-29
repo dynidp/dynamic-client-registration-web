@@ -9,7 +9,7 @@ import { RedirectRequestHandler } from "@openid/appauth";
 const defaults = {
     authority: 'https://fidm.eu1.gigya.com/oidc/op/v1.0/4_IIUXxExoyzTQFvliBbnXsA', config: {
         client_name: "default-static-js-client-spa",
-        redirect_uris: ['https://dina.fbi.com:5173/callback/gigya-login.html'],
+        redirect_uris: ['https://web.gid.dynidp.com/callback/gigya-login.html'],
         token_endpoint_auth_method: 'none',
         "grant_types": ["authorization_code"],
         "response_types": null,
