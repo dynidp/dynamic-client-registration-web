@@ -1,16 +1,13 @@
- # Gigya - CDC B2B Starter
+ # Gigya - Dynamic Registration Web
  
  - b2b configuration and authorization
  - client side implemantation with Gigya sdk
  
  ## Live site
  
-Deployed to https://b2b.cdcs.site/
+Deployed to https://web.gid.dynidp.com/
 
   
-![image](https://user-images.githubusercontent.com/29256880/203679994-3c52fe82-72c5-4b3f-a25f-fa9d63d14a75.png)
-
-Insepired by the amazing  https://gigyademo.com/cdc-starter-kit :heart:	
 
 ## Local development
 
