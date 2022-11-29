@@ -19,7 +19,7 @@ import {PrivateRoute} from "./routes";
 
 import {ThemeProvider, Theme, StyledEngineProvider, createTheme} from '@mui/material/styles';
 
-import {AuthContext, AuthProvider} from "./auth/AuthProvider";
+import {AuthContext, AuthProvider} from "./auth";
 import { green, purple } from '@mui/material/colors';
 
 
@@ -130,7 +130,7 @@ const AppWithService = () => {
                                       authService={authService}
                                       notificationsService={notificationService}
                         />
-                        <SignIn path={"/signin"} authService={authService}/>
+                        <SignIn path={"/signin"} authService={authService} notificationsService={notificationService} />
                         <ProfileContainer path="/profile" authService={authService} notificationsService={notificationService}/>
 
                     </Router>

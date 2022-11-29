@@ -1,5 +1,5 @@
 import {useSelector} from "@xstate/react";
-import {AnyState} from "xstate";
+import {AnyInterpreter, AnyState} from "xstate";
 import {PortalApplicationRef} from "../machines/portalApplication";
 import {NotificationsService} from "../machines/notificationsMachine";
 import {isUpdateType, useAppLogger} from "../logger/useApplicationLogger";
@@ -15,7 +15,7 @@ export function ApplicationCard({
 
     const {name, info, icon, link, action} = app;
     const assets = useSelector(app.machine, assetsSelector);
-    useAppLogger(app.machine, notificationsService.send);
+    useAppLogger(app.machine as AnyInterpreter | undefined, notificationsService.send);
 
     return (
         <div

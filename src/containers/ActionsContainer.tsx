@@ -53,7 +53,7 @@ const EventsContainer: React.FC<Props> = ({authService, notificationsService}) =
             info: 'Logout'
         },
         {
-            type: "ORGANIZATION.REGISTER",
+            type: "REGISTER",
             icon: 'mail',
             info: 'Register new organization'
         }];
@@ -97,7 +97,7 @@ const EventsContainer: React.FC<Props> = ({authService, notificationsService}) =
 export const Event = (props: { type: string, state: AnyState, send: PayloadSender<any>, icon: string, info: string }) => {
  
     const {state, send, type, info, icon} = props;
-    const defaultEvent = state.meta?.eventPayloads?.[type] || {};
+    const defaultEvent = state?.meta?.eventPayloads?.[type] || {};
   
     return (
 

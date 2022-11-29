@@ -78,16 +78,20 @@ function ProfileContainer({authService, notificationsService}: ProfileProps) {
             }}
         >
 
-            <div className="shop-header">
+            <div className={"shop-header " + classes.stackItem}>
                 <div className="container">
                     <Profile authService={authService}/>
                 </div>
+            </div>
+            <div  className={classes.stackItem}>
+                <SessionInfo authService={authService}/>
             </div>
             <div className="store-sections">
                 <div className="container">
                     <Apps authService={authService} notificationsService={notificationsService}/>
                 </div>
             </div>
+          
             <div className="shop-footer">
             <div >
                <MangeAccount authService={authService}/>

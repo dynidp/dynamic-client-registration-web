@@ -1,7 +1,7 @@
 
 // @ts-ignore
 import {AnyState, AnyStateMachine, State} from "xstate";
-import {authMachine, AuthMachineContext, AuthMachineEvents} from "./authMachine";
+import {oidcMachine, AuthMachineContext, AuthMachineEvents} from "./oidcProviderMachine";
 import {useInterpret} from "@xstate/react";
 import {MaybeLazy} from "@xstate/react/lib/types";
 
@@ -26,7 +26,7 @@ export const stateLocalStorage ={
             // @ts-ignore
             // return  authMachine.resolveState(previousState);
         }
-        return authMachine.initialState;
+        return oidcMachine.initialState;
       
     },
     observer:(state: AnyState) => {

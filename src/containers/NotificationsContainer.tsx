@@ -1,15 +1,16 @@
 import React, {useEffect} from "react";
-import {ActionTypes, ActorRef, AnyEventObject, AnyState} from "xstate";
+import {ActionTypes, ActorRef, AnyEventObject, AnyState,AnyInterpreter} from "xstate";
 import {Box, FormControlLabel, Paper, Slide, Switch, Typography} from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import NotificationList from "../logger/NotificationList";
 import {AuthService} from "../machines/authMachine";
-import {NotificationResponseItem, NotificationsEvents, NotificationsService} from "../machines/notificationsMachine";
+import {NotificationResponseItem, NotificationsService} from "../machines/notificationsMachine";
 import {omit} from "lodash/fp";
 import {useActor, useSelector} from "@xstate/react";
-import {AppMachine, AppService} from "../machines/appMachine";
 import {ErrorBoundary} from "../logger/NotificationListItem";
-import {isUpdateType, useAppLogger} from "../logger/useApplicationLogger";
+import {getPayload, isUpdateType, useAppLogger} from "../logger/useApplicationLogger";
+import {AnyRecord} from "../models";
+declare type  AppService= AnyInterpreter;
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -39,17 +40,12 @@ interface NotificationUpdatePayload {
 
 const contextSelector = (state: AnyState) => state?.context;
 const appSelector = (state: AnyState) => state?.context?.app;
-const compareApp = (prevApp: ActorRef<AppMachine>, nextNext: ActorRef<AppMachine>) => prevApp?.id === nextNext?.id;
+const loaderSelector = (state: AnyState) => state?.context?.loader;
+const loginSelector = (state: AnyState) => state?.context?.oidc_client;
+const compareApp = (prevApp: ActorRef<any>, nextNext: ActorRef<any>) => prevApp?.id === nextNext?.id;
+const compare = (prevApp: any, nextNext: any) => nextNext?.id && prevApp?.id === nextNext?.id;
 
 const appsSelector = (state: AnyState) => state?.context?.apps;
-
-function getPayload(event: AnyEventObject) {
-    return {
-        ...omit(['type', 'data', 'service', 'loader'], event),
-        ...(event.data || {})
-
-    };
-}
 
 function doneDetails(event: AnyEventObject): Partial<NotificationResponseItem> {
     if (event.type.indexOf('DONE.') > 0) {
@@ -97,8 +93,12 @@ const NotificationsContainer: React.FC<Props> = ({authService, notificationsServ
     const classes = useStyles();
     const [notificationsState, sendNotifications] = useActor(notificationsService);
     const app = useSelector(authService, appSelector, compareApp) ;
+    const loader = useSelector(authService, loaderSelector, compare) ;
+    const login = useSelector(authService, loginSelector, compare) ;
     // const apps = useSelector(app, appsSelector) || [];
-    useAppLogger(app as unknown as AppService, sendNotifications);
+    useAppLogger(app as AppService  , sendNotifications);
+    useAppLogger(loader as AppService, sendNotifications);
+    useAppLogger(login as AppService, sendNotifications);
 
 
     function getType(state: AnyState) {
@@ -120,7 +120,7 @@ const NotificationsContainer: React.FC<Props> = ({authService, notificationsServ
                     summary: `event: ${getType(state)}`,
                     group: 'auth',
                     icon: 'login',
-                    payload: getPayload(state.event),
+                    payload: getPayload(state.event, state.context),
                     ...doneDetails(state.event),
                     ...errorDetails(state.event)
                 }

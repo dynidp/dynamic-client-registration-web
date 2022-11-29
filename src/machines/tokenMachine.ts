@@ -15,88 +15,14 @@ export interface LoginMachineSchema {
     };
 }
 
-export type LoginMachineEvents =
-    |  { type: "SOCIAL" , provider: any}
-    | { type: "SIGNUP" }
-    | { type: "PASSWORD" };
-
+ 
 export interface LoginMachineContext {
     user?: User;
     message?: string;
     token?: Token;
 
 }
-
-export const loginMachine = Machine<LoginMachineContext, LoginMachineSchema, LoginMachineEvents>({
-        id: 'login',
-        on: {
-            PASSWORD: "password",
-            SOCIAL: "social",
-            SIGNUP: "signup"
-        },
-        states: {
-            social: {
-                entry: log('social'),
-                invoke: {
-                    src: "performSocialLogin",
-                    onDone: {target: "authorized", actions: "onSuccess"},
-                    onError: {target: "error", actions: ["onError", "logEventData"]},
-                },
-            },
-            password: {
-                invoke: {
-                    src: "performLogin",
-                    onDone: {target: "authorized", actions: "onSuccess"},
-                    onError: {target: "error", actions: ["onError", "logEventData"]},
-                }
-            },
-            signup: {
-                entry: log('signup'),
-
-                invoke: {
-                    src: "performSignup",
-                    onDone: {target: "authorized", actions: "onSuccess"},
-                    onError: {target: "error", actions: ["onError", "logEventData"]},
-                },
-            },
-
-            authorized: {
-                entry: [log("authorized"), "onAuthorizedEntry"],
-                type: "final",
-                data: (ctx, _) => ctx
-            },
-            error: {
-                entry: [log("authorized"), "onAuthorizedEntry"],
-                type: "final",
-                data: (ctx, _) => ctx
-            }
-        }
-    }, {
-        actions: {
-            onSuccess: assign((ctx: any, event: any) => ({
-                user: event.data.user,
-                message: undefined,
-            })),
-            logEventData: {
-                type: 'xstate.log',
-                label: 'Finish label',
-                expr: (context: any, event: any) => event.data
-            },
-
-            setToken: assign((ctx: any, event: any) => ({
-                token: {
-                    id_token: event.data.idToken,
-                    access_token: event.data.access_token,
-                    refresh_token: event.data.refresh_token,
-                }
-            })),
-
-            onError: assign((ctx: any, event: any) => ({
-                message: event.data.message,
-            })),
-        }
-    }
-);
+ 
 
 export interface TokenMachineSchema {
     states: {

@@ -6,14 +6,14 @@ import ReactJson from 'react-json-view';
 export interface JsonProps {data:any};
 
  
-export const JsonView:React.FC<JsonProps>= ({data}) => {
+export const JsonView:React.FC<JsonProps>= ({data, ...props}) => {
  
     if (!data || !(data instanceof Object)) {
         return( <span>`{data || 'no information'}`</span>);
     }
     return (
         <div>
-            <ReactJson collapsed={false} theme={"bright:inverted"} src={JSON.parse(JSON.stringify(data))}/>
+            <ReactJson {...props} collapsed={false} theme={"bright:inverted"} src={data}/>
             {/*{window && <JSONTree data={data} theme="bright" shouldExpandNode={shouldExpandNode} />}*/}
         </div>
     );

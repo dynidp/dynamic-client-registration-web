@@ -4,7 +4,6 @@ import { useActor } from "@xstate/react";
 import {LoginRoute} from "./LoginRoute";
 import {AuthService} from "../machines/authMachine";
 import { RouteComponentProps } from "@reach/router";
-import Organization from "../components/Organization";
 import {NotificationsService} from "../machines/notificationsMachine";
 export interface Props extends RouteComponentProps {
     authService: AuthService;
@@ -23,16 +22,14 @@ export function PrivateRoute({authService,notificationsService, as: Comp, ...pro
 
     switch (true) {
         case state == undefined:
-            return <LoginRoute authService={authService}/>;
+            return <LoginRoute notificationsService={notificationsService} authService={authService}/>;
 
         case state.matches('loggedIn'):
             return  <Comp {...props} authService={authService} notificationsService={notificationsService}/>
       
-        case state.matches('organization'):
-            return  <Organization {...props} authService={authService}/>
  
         default:
-            return <LoginRoute authService={authService}/>
+            return <LoginRoute  {...props}  authService={authService} notificationsService={notificationsService}/>
     }
 
 

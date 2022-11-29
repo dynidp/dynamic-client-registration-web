@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import {ActionTypes, ActorRef, AnyEventObject, AnyState } from "xstate";
-import { AppService} from "../machines/appMachine";
+import {ActionTypes, AnyInterpreter, AnyEventObject, AnyState } from "xstate";
 import {NotificationResponseItem, NotificationsEvents} from "../machines/notificationsMachine";
 import { omit } from "lodash/fp";
-
+import {AnyRecord} from "../models";
+declare type  AppService= AnyInterpreter | undefined;
 export function isUpdateType(state: AnyState) {
     return state.event?.type &&
         state.event.type.toLowerCase() === "xstate.update";
@@ -16,11 +16,15 @@ function generateUniqueID() {
 }
 
 
-function getPayload(event: AnyEventObject) {
-    return {
-        ...omit(['type', 'data', 'service', 'loader'], event),
-        ...(event.data || {})
 
+export function getPayload(event: AnyEventObject, ctx: AnyRecord) {
+    return {
+        event:{
+            ...omit(['type', 'data', 'service', 'loader'], event),
+            ...(event.data || {}),
+
+        },
+        context: ctx
     };
 }
 
@@ -82,10 +86,10 @@ export function useAppLogger(app: AppService, send: (notification: Notifications
                     id: generateUniqueID(),
                     title: `${state.value}`,
                     severity: 'success',
-                    group: `${state.context.app.name}`,
+                    group: `${state.machine?.id|| 'default'}`,
                     icon: state.context.app?.logo || 'manage_accounts' ,
                     summary: `event: ${state.event.type.toString().toLowerCase()} ${state.context.assets?.length && `assets: ${state.context.assets.length}` || ''}`,
-                    payload: getPayload(state.event),
+                    payload: getPayload(state.event, state.context),
                     ...doneDetails(state.event),
                     ...errorDetails(state.event)
                 }
