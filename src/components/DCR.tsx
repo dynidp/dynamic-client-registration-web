@@ -1,12 +1,9 @@
 import * as React from 'react';
 import makeStyles from '@mui/styles/makeStyles';
-import {AuthService} from "../machines/authMachine";
 import {useSelector} from "@xstate/react";
 import {AnyState} from "xstate";
 import JsonView from "./JsonTreeViewer";
 import {Paper, Typography} from "@mui/material";
-import {DrContext} from "../../oidc-client/oidc_dr_machine";
-import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
