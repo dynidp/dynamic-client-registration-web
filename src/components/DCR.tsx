@@ -3,7 +3,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import {useSelector} from "@xstate/react";
 import {AnyState} from "xstate";
 import JsonView from "./JsonTreeViewer";
-import {Paper, Typography} from "@mui/material";
+import {Paper} from "@mui/material";
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -69,11 +69,14 @@ export function DCR({drService}: SessionProps) {
                         <Tab label="Authorization Request" value="3"/>
                     </TabList>
                 </Paper>
-                <TabPanel value="1">                {issuer && <JsonView data={issuer}/>}
+                <TabPanel value="1">                
+                    {issuer && <JsonView data={issuer}/>}
                 </TabPanel>
-                <TabPanel value="2">                {client && <JsonView data={client}/>}
+                <TabPanel value="2">              
+                    {client && <JsonView data={client}/>}
                 </TabPanel>
-                <TabPanel value="3">                {client && <JsonView data={{
+                <TabPanel value="3">                
+                    {client && <JsonView data={{
                     client_id: client.client_id,
                     redirect_uri: client.redirect_uri,
                     scope: client.scope,
