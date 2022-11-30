@@ -3,6 +3,7 @@
 
 import {AuthorizationNotifier, AuthorizationRequest, AuthorizationResponse,
     AuthorizationServiceConfiguration,
+    LocationLike,
     BaseTokenRequestHandler, RedirectRequestHandler, StringMap, TokenRequest, TokenResponse, TokenRequestHandler, AuthorizationRequestHandler, AuthorizationRequestJson } from "@openid/appauth";
 import {Client, Issuer} from "./oidc-client/oidc_dr_machine";
 import {NotificationsService} from "./notificationsMachine";
@@ -24,6 +25,8 @@ declare interface MaterialSnackBar {
 const redirectUri = 'http://localhost:8000/app/redirect.html';
 const scope = 'openid';
 
+  
+
 /**
  * The App Auth JS application.
  */
@@ -44,7 +47,9 @@ export class AppAuthJs {
     ) {
         this.configuration= new AuthorizationServiceConfiguration(issuer.metadata as any);
          this.notifier = new AuthorizationNotifier();
-        this.authorizationHandler = new RedirectRequestHandler();
+        const redirectHandler=  new RedirectRequestHandler() ;
+        // redirectHandler.locationLike= this.getLocation(this.showMessage);
+        this.authorizationHandler=redirectHandler;
         this.tokenHandler = new BaseTokenRequestHandler();
         // set notifier to deliver responses
         this.authorizationHandler.setAuthorizationNotifier(this.notifier);
@@ -67,8 +72,18 @@ export class AppAuthJs {
         });
     }
 
- 
 
+    getLocation(showMessage:typeof this.showMessage):LocationLike {
+        return {
+            ...window.location,
+            assign(url:string){
+                const response=  fetch(url);
+                showMessage(`response`);
+
+            }
+
+        }
+    }
 
     makeAuthorizationRequest() {
         // create a request

@@ -9,22 +9,14 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import makeStyles from '@mui/styles/makeStyles';
 import Container from "@mui/material/Container";
-import {useForm} from "react-hook-form";
 import {useInterpret, useSelector} from "@xstate/react";
 import {AuthService} from "../machines/authMachine";
 import {ErrorOutlined} from "@mui/icons-material";
 import {Google, WindowTwoTone} from "@mui/icons-material";
 import {NotificationsService} from "../machines/notificationsMachine";
-import {useAppLogger} from "../logger/useApplicationLogger";
-import {AnyInterpreter} from "xstate";
-import {createDrMachine} from "../machines/oidc-client/oidc_dr_machine";
-import {useInterpretWithLocalStorage} from "../machines/withLocalStorage";
-import {AppAuthCallback} from "../machines/clientMachineAppAuth";
-import JsonView from "./JsonTreeViewer";
-import {AuthorizationRequest} from "@openid/appauth/built/authorization_request";
-import {RedirectRequestHandler} from "@openid/appauth/built/redirect_based_handler";
 import {AppAuthJs} from "../machines/AppAuth";
-import DCR, {DCRClient} from "./DCR";
+import {DCRClient} from "./DCR";
+import {ProviderSelector} from "./Providers";
  
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -90,7 +82,6 @@ export default function SignIn({authService, notificationsService}: SignInProps)
     };
     return (
         <Container component="main" >
-
             <Container maxWidth="xs">
 
                 <CssBaseline/>
@@ -114,7 +105,7 @@ export default function SignIn({authService, notificationsService}: SignInProps)
 
             <div className={classes.paperRow}>
 
-                <DCR  notify={notificationsService.send}  onChange={onClientChange} />
+                <ProviderSelector  notify={notificationsService.send}  onChange={onClientChange} />
 
             </div>
         </Container>

@@ -14,20 +14,22 @@ export interface Issuer  {
 };
  
 
-declare type DrConfig = {
+export type DrConfig = {
     redirect_uris?: string[],
     client_name: string
-}
+    
+}& AnyRecord
+
 const defaults= {
         client_name:"default-static-js-client-spa"
 
     };
 
-export type DrContext = {authority: string, client?: Client, issuer?: Issuer, error?: string, errorType?: string, config: DrConfig };
-export const createDrMachine =({authority, config}:Pick<DrContext, "authority"> & {config?: DrConfig})=>{
+export type DrContext = {name?: string;authority: string, client?: Client, issuer?: Issuer, error?: string, errorType?: string, config: DrConfig };
+export const createDrMachine =({authority, config, name}:Pick<DrContext, "authority"> & {config?: DrConfig}& Pick<DrContext, "name">)=>{
     return Machine<DrContext>(
         {
-            id: `${authority}`,
+            id: `${name || authority}`,
             initial: "discovering",
             context: {
                 authority,
