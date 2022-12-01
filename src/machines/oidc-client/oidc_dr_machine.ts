@@ -32,6 +32,7 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
             id: `${name || authority}`,
             initial: "discovering",
             context: {
+                name: name,
                 authority,
                 issuer: undefined,
                 client: undefined,
@@ -168,8 +169,8 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
                 },
                 saveErrorToContext: assign((context, event) => {
                     return {
-                        errorType: event.errorType,
-                        error: event.error
+                        errorType: event.data?.errorType || event.errorType,
+                        error: event.data?.error || event.error || event
                     };
                 }),
                 setConfig:  assign( {

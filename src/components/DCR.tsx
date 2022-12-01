@@ -3,17 +3,18 @@ import makeStyles from '@mui/styles/makeStyles';
 import {useInterpret, useSelector} from "@xstate/react";
 import {AnyInterpreter, AnyState} from "xstate";
 import JsonView from "./JsonTreeViewer";
-import {alpha, AppBar, Button, InputBase, Paper, TextField, Toolbar} from "@mui/material";
+import {alpha, AppBar, Button, InputBase, ListSubheader, Paper, TextField, Toolbar, Typography} from "@mui/material";
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import {Client, DrService, Issuer} from '../machines/oidc-client/oidc_dr_machine';
-import { AuthorizationRequestJson} from "@openid/appauth/built/authorization_request";
-import { useEffect, useState} from 'react';
+import {AuthorizationRequestJson} from "@openid/appauth/built/authorization_request";
+import {useEffect, useState} from 'react';
 import {useAppLogger} from "../logger/useApplicationLogger";
 import {NotificationsEvents} from "../machines/notificationsMachine";
 import {DrActor} from "../machines/oidc-client/providers_machine";
+import { Label } from '@mui/icons-material';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -51,19 +52,21 @@ const clientSelector = (state: any) => state.context.client;
 const issuerSelector = (state: any) => state.context.issuer;
 const configSelector = (state: any) => state.context.config;
 const errorSelector = (state: any) => state.context.error;
- 
- 
+const nameSelector = (state: any) => state.context.name;
+
+
 export interface DCRProviderProps {
     onChange: ({request, issuer, client}: DCRClient) => void;
     notify: (notification: NotificationsEvents) => {};
-    drService:DrActor | DrService
+    drService: DrActor | DrService
 }
 
 
 export function Provider({onChange, notify, drService}: DCRProviderProps) {
     const classes = useStyles();
-     useAppLogger(drService as AnyInterpreter | undefined, notify);
+    useAppLogger(drService as AnyInterpreter | undefined, notify);
 
+    const name = useSelector(drService, nameSelector);
     const client = useSelector(drService, clientSelector);
     const issuer = useSelector(drService, issuerSelector);
     const config = useSelector(drService, configSelector);
@@ -72,14 +75,14 @@ export function Provider({onChange, notify, drService}: DCRProviderProps) {
     const [authRequest, setAuthRequest] = useState<AuthorizationRequestJson>({
         client_id: client?.client_id,
         scope: config?.scope || client?.scope,
-        redirect_uri:config?.redirect_uri || client?.redirect_uris[0],
+        redirect_uri: config?.redirect_uri || client?.redirect_uris[0],
         response_type: 'code',
         state: 'dcr_web_client',
         extras: {'prompt': 'none', 'access_type': 'offline'}
 
     });
 
-    const [value, setValue] = React.useState('1');
+    const [value, setValue] = React.useState('op');
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setValue(newValue);
@@ -93,7 +96,7 @@ export function Provider({onChange, notify, drService}: DCRProviderProps) {
                 ...authRequest,
                 client_id: client?.client_id,
                 scope: config?.scope || client?.scope,
-                redirect_uri:config?.redirect_uri || client?.redirect_uris[0],
+                redirect_uri: config?.redirect_uri || client?.redirect_uris[0],
 
 
             });
@@ -109,33 +112,60 @@ export function Provider({onChange, notify, drService}: DCRProviderProps) {
         return () => {
         };
     }, [authRequest]);
- 
+
+    useEffect(() => {
+        if (error) {
+            setValue('error');
+        }
+        else if (authRequest) {
+            setValue('request');
+        }
+        else  if (client) {
+            setValue('client');
+        }
+       else if (issuer) {
+            setValue('op');
+        }
+        
+        
+        return () => {
+        };
+    }, [error]);
+
     return (
         <div>
-
-
+            <Typography color={"primary"} variant="h4" component="h2" mt={2}>
+                {name}
+            </Typography>
+ 
             <TabContext value={value}>
 
                 <Paper>
 
-                        <TabList onChange={handleChange} aria-label="Dynamic Registration Details">
+                    <TabList onChange={handleChange} aria-label="Dynamic Registration Details">
 
-                        <Tab label="OP Details" value="1"/>
-                        <Tab label="Registered Client" value="2"/>
-                        <Tab label="Authorization Request" value="3"/>
-                           
+                        <Tab label="OP Details" value="op"/>
+                        <Tab label="Registered Client" value="client"/>
+                        <Tab label="Authorization Request" value="request"/>
+                        <Tab label="Error" value="error"/>
+
                     </TabList>
-                     
+
                 </Paper>
-                <TabPanel value="1">
+
+                <TabPanel value="op">
                     {issuer && <JsonView data={issuer}/>}
                 </TabPanel>
-                <TabPanel value="2">
-                    {client && <JsonView data={client}/> }
-                  
+                <TabPanel value="client">
+                    {client && <JsonView data={client}/>}
+
                 </TabPanel>
-                <TabPanel value="3">
+                <TabPanel value="request">
                     {client && <JsonView data={authRequest}/>}</TabPanel>
+
+                <TabPanel value="error">
+                    {error && <JsonView data={error}/>}
+                </TabPanel>
             </TabContext>
             <div className={classes.paper}>
 

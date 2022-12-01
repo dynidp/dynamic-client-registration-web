@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     },
     avatar: {
         margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.primary.main,
     },
     form: {
         width: "100%", // Fix IE 11 issue.
@@ -85,9 +85,7 @@ export default function SignIn({authService, notificationsService}: SignInProps)
             <Container maxWidth="xs">
 
                 <CssBaseline/>
-                <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon/>
-                </Avatar>
+              
 
                 <Button
                     type="submit"
@@ -97,7 +95,11 @@ export default function SignIn({authService, notificationsService}: SignInProps)
                     className={classes.submit}
                     onClick={handle_oidc_dr}
                 >
+                  
                     Sign In OIDC Provider (dcr )
+                    <Avatar className={classes.avatar} >
+                        <LockOutlinedIcon/>
+                    </Avatar>
                 </Button> 
 
                 {message && <span><ErrorOutlined/> {message}</span>}

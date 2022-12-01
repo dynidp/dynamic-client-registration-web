@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import {DCRProps, Provider} from "./DCR";
 import {useAppLogger} from "../logger/useApplicationLogger";
-import {AnyInterpreter} from 'xstate';
+import {AnyInterpreter, send} from 'xstate';
 import {useInterpretWithLocalStorage} from "../machines/withLocalStorage";
 import {useInterpret} from "@xstate/react";
 import {styled} from '@mui/styles';
@@ -86,48 +86,26 @@ export const ProviderSelector = (props: DCRProps) => {
     const provider = useSelector(service, providerSelector);
     const providerName = useSelector(service, providerNameSelector);
     const allProviders = useSelector(service, providersSelector);
-    const {send} = service;
+    const {send, state} = service;
     useAppLogger(service as AnyInterpreter | undefined, props.notify);
-
+     
     useEffect(() => {
 
     })
-    const onChange = (e: any) => {
-        send({type: 'SELECT', ...allProviders[e.target.value]});
-        e.preventDefault();
-
-    }
-
-
+  
     return (
-        <main>
+        <main
+            data-machine={service.machine.id}
+            data-state={state?.toStrings().join(" ")}>
 
-
-            <Box sx={{minWidth: 120}}>
-                <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Provider</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={providerName}
-                        label="Provider"
-                        onChange={onChange}
-                    >
-                        {Object.keys(allProviders).map((provider) => {
-                            return <MenuItem key={provider} value={provider}>{allProviders[provider].name}</MenuItem>;
-                        })}
-                        <AddProvider service={service}/>
-                    </Select>
-                </FormControl>
-                {/*<AddProvider service={service}/>*/}
-            </Box>
+            <Selector service={service} />
 
             <Paper>
                 <h1>{!provider && 'Please select a provider'}</h1>
 
                 <AddProvider service={service}/>
                 {provider?.machine &&
-                    <Provider {...props} drService={provider.machine}/>
+                    <Provider {...props} drService={provider.machine} key={service.id}/>
                 }
 
             </Paper>
@@ -135,22 +113,54 @@ export const ProviderSelector = (props: DCRProps) => {
     );
 }
 
+
+export const Selector = ({service}: { service: ProviderService }) => {
+
+    const provider = useSelector(service, providerSelector);
+     const allProviders = useSelector(service, providersSelector);
+
+
+    const addIssuer = (data: AnyRecord) => {
+        service.send({
+            type: 'SELECT',
+            ...data
+        });
+    }
+ 
+
+
+    const onChange = (e: any) => {
+        addIssuer({name:e.target.value});
+        e.preventDefault();
+
+    }
+ 
+     
+    
+    return    <Box sx={{minWidth: 120}} >
+         <InputLabel  id="demo-simple-select-label">Provider</InputLabel>
+
+            <Select
+                 fullWidth
+                labelId="demo-simple-select-label"
+                id="demo-simple-select" 
+                 label="Provider"
+                 onChange={onChange}
+            >
+                {Object.keys(allProviders).map((provider_key) => {
+                    return <MenuItem key={provider_key} value={provider_key}>{provider_key}</MenuItem>;
+                })}
+            </Select>
+     </Box>
+}
+
 const defaultsSelector = (state: any) => state.context.default_config;
 
 export const AddProvider = ({service}: { service: ProviderService }) => {
-    const redirect_uri = `${window.location.origin}/callback/gigya-login.html`
-    const scope = "openid gigya_web";
 
-    const defaults = {
-        client_name: "default-static-js-client-spa",
-        redirect_uris: [redirect_uri],
-        token_endpoint_auth_method: 'none',
-        "grant_types": ["authorization_code"],
-        "response_types": ["code token idToken"],
-        "scope": scope,
 
-    }
-
+    const provider = useSelector(service, providerSelector);
+    const providerName = useSelector(service, providerNameSelector);
 
     const [open, setOpen] = React.useState(false);
     const default_config = useSelector(service, defaultsSelector);
@@ -190,7 +200,13 @@ export const AddProvider = ({service}: { service: ProviderService }) => {
                 });
 
         }
-    }, [watchAuthority]);
+    }, [watchAuthority]); 
+    
+    React.useEffect(() => {
+        if (open && provider?.machine && watchName == providerName) {
+            setOpen(false) 
+        }
+    }, [providerName, open]);
 
     return (
         <div>

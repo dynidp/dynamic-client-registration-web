@@ -85,7 +85,7 @@ export const providersMachine =()=> createMachine<ProvidersMachineContext>({
 
                 provider = {
                     ...providerConfig,
-                    machine: event.machine || spawn(createDrMachine(providerConfig), {sync: true})
+                    machine: event.machine || spawn(createDrMachine(providerConfig),  {sync: true})
                 }
                 return {
                     providers: {
