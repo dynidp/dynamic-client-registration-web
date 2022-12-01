@@ -21,7 +21,8 @@ import {
     ListItemIcon,
     Icon,
     Button,
-    Paper
+    Paper,
+    Container
 } from '@mui/material';
 import {DCRProps, Provider} from "./DCR";
 import {useAppLogger} from "../logger/useApplicationLogger";
@@ -94,7 +95,7 @@ export const ProviderSelector = (props: DCRProps) => {
     })
   
     return (
-        <main
+        <Container
             data-machine={service.machine.id}
             data-state={state?.toStrings().join(" ")}>
 
@@ -109,7 +110,7 @@ export const ProviderSelector = (props: DCRProps) => {
                 }
 
             </Paper>
-        </main>
+        </Container>
     );
 }
 
