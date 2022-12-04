@@ -1,5 +1,5 @@
 import {AuthMachineContext, AuthMachineEvents} from "../authMachine";
-import {Client, DrContext, drMachine, Issuer} from "./oidc_dr_machine";
+import {Client, DrContext, Issuer} from "./oidc_dr_machine";
 import  axios from "axios";
 const AAD_MULTITENANT = Symbol();
 const ISSUER_DEFAULTS = {

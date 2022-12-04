@@ -7,23 +7,11 @@ import {appMachine} from "../appMachine";
 export type DrActor = ActorRefFrom<typeof appMachine>;
 
 export type OP = { authority: string, name: string, info: string, machine?: DrActor } & Partial<DrContext>;
-const redirect_uri = `${window.location.origin}/callback/gigya-login.html`
-const scope = "openid gigya_web";
 
-const config = {
-    client_name: "default-static-js-client-spa",
-    redirect_uris: [redirect_uri],
-    token_endpoint_auth_method: 'none',
-    "grant_types": ["authorization_code"],
-    "response_types": ["code token idToken"],
-    "scope": scope,
-
-};
 
 declare type ProvidersMachineContext = {
     providers: { [key: string]: OP }
-    provider?: OP,
-    default_config: DrConfig
+    provider?: OP
 }
 
 
@@ -118,25 +106,43 @@ export const providersMachine =()=> createMachine<ProvidersMachineContext>({
     );
 
 
+const redirect_uri = (provider:string)=>`${window.location.origin}/callback/${provider}`
+const scope = "openid gigya_web";
 
+const config =(provider:string)=> {return {
+    client_name: "default-static-js-client-spa",
+    redirect_uris: [redirect_uri(provider)],
+    token_endpoint_auth_method: 'none',
+    "grant_types": ["authorization_code"],
+    "response_types": ["code token idToken"],
+    "scope": scope,
+    "initiate_login_uri": "https://dev-mea4uj8q.us.auth0.com/u/login"
+
+}};
 
 const defaults = {
     'gid.dynidp.com': {
         name: 'gid.dynidp.com',
         info: 'self-hosted',
         authority: 'https://fidm.eu1.gigya.com/oidc/op/v1.0/4_IIUXxExoyzTQFvliBbnXsA',
-        config
+        config: config('gigya')
     },
     'login.dynidp.com': {
         name: 'login.dynidp.com',
         info: 'hosted',
         authority: 'https://gigya.login.dynidp.com/oidc/op/v1.0/4_DxFqHMTOAJNe9VmFvyO3Uw',
-        config
+        config: config('gigya')
+
+    } ,
+    'auth0': {
+        name: 'auth0',
+        info: 'hosted',
+        authority: 'https://dev-mea4uj8q.us.auth0.com/oidc',
+        config: config('auth0')
     }
 };
  const wthDefaults=providersMachine()
     .withContext({
-        default_config: config,
         providers: defaults 
     });
 
@@ -147,8 +153,8 @@ const defaults = {
 export const providersMachineWithDefaults= wthDefaults;
 export type ProviderService = InterpreterFrom<typeof providersMachine>;
 
-wthDefaults .transition("idle", {
-    type:'SELECT',
-    ...defaults["gid.dynidp.com"]
-
-});
+// wthDefaults .transition("idle", {
+//     type:'SELECT',
+//     ...defaults["gid.dynidp.com"]
+//
+// });

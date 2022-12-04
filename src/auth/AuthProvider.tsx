@@ -3,7 +3,6 @@ import {authMachine, AuthService, AuthMachineContext, AuthMachine} from "../mach
 import {useInterpret} from "@xstate/react";
 import {RouteComponentProps } from "@reach/router";
 import { navigate } from "@reach/router"
-import {OidcProvider} from "./OidcProvider";
 import { InterpreterFrom } from "xstate";
 
 export const AuthContext = createContext<InterpreterFrom<AuthMachine>>({} as InterpreterFrom<AuthMachine>);

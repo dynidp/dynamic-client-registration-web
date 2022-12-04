@@ -19,7 +19,7 @@ import {PrivateRoute} from "./routes";
 
 import {ThemeProvider, Theme, StyledEngineProvider, createTheme} from '@mui/material/styles';
 
-import {AuthContext, AuthProvider} from "./auth";
+import {Auth, AuthContext, AuthProvider} from "./auth";
 import { green, purple } from '@mui/material/colors';
 
 

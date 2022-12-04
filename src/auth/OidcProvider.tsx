@@ -11,11 +11,11 @@ export type  OidcProviderProps = React.PropsWithChildren
 
 export function OidcProvider({ children, ...props}:OidcProviderProps) {
 
-    const getMachine=():OidcMachine =>  withDynamicOidcClient( oidcMachine.withContext({
-        ...oidcMachine.context,
-        ...props
-    }));
-    const authService= useInterpret(getMachine);
+    // const getMachine=():OidcMachine =>  withDynamicOidcClient( oidcMachine.withContext({
+    //     ...oidcMachine.context,
+    //     ...props
+    // }));
+    const authService= useInterpret(oidcMachine);
  
         return  <OidcContext.Provider value={authService}>
             {children}

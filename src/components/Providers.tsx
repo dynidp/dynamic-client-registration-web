@@ -157,11 +157,14 @@ export const Selector = ({service}: { service: ProviderService }) => {
 
 const defaultsSelector = (state: any) => state.context.default_config;
 
+const providerAuthoritySelector = (state: any) => state.context.provider?.authority;
+
 export const AddProvider = ({service}: { service: ProviderService }) => {
 
 
     const provider = useSelector(service, providerSelector);
     const providerName = useSelector(service, providerNameSelector);
+    const providerAuthority = useSelector(service, providerAuthoritySelector, );
 
     const [open, setOpen] = React.useState(false);
     const default_config = useSelector(service, defaultsSelector);
@@ -181,7 +184,7 @@ export const AddProvider = ({service}: { service: ProviderService }) => {
     const {register, setValue, watch, handleSubmit, formState: {errors}} = useForm({
         defaultValues: {
             config: default_config,
-            authority: undefined as string | undefined,
+            authority: providerAuthority as string | undefined,
             name: undefined as string | undefined,
             info: undefined as string | undefined,
 
@@ -202,6 +205,8 @@ export const AddProvider = ({service}: { service: ProviderService }) => {
 
         }
     }, [watchAuthority]); 
+    
+    
     
     React.useEffect(() => {
         if (open && provider?.machine && watchName == providerName) {

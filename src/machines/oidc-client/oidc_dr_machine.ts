@@ -2,31 +2,36 @@ import {Machine, assign, interpret, send, Subscribable, Sender, InterpreterFrom}
 import {AnyRecord} from "../../models";
 import {oidc_discovery_service, oidc_dr_registration_service} from "./oidc_dr_service";
 
-export interface Client extends Subscribable<{type:'CALLBACK'} | {type:'TOKEN'}| {type:'ERROR'}>{
-    metadata: AnyRecord
+export interface Client extends Subscribable<{ type: 'CALLBACK' } | { type: 'TOKEN' } | { type: 'ERROR' }> {
+    metadata: AnyRecord;
+
 }
 
 
-export interface Issuer  {
-    metadata?: AnyRecord
+export interface Issuer {
+    metadata: AnyRecord;
 
-     
+
 };
- 
+
 
 export type DrConfig = {
     redirect_uris?: string[],
     client_name: string
-    
-}& AnyRecord
 
-const defaults= {
-        client_name:"default-static-js-client-spa"
+} & AnyRecord
 
-    };
+const defaults = {
+    client_name: "default-static-js-client-spa"
 
-export type DrContext = {name?: string;authority: string, client?: Client, issuer?: Issuer, error?: string, errorType?: string, config: DrConfig };
-export const createDrMachine =({authority, config, name}:Pick<DrContext, "authority"> & {config?: DrConfig}& Pick<DrContext, "name">)=>{
+};
+
+export type DrContext = { name?: string; authority: string, client?: Client, issuer?: Issuer, error?: string, errorType?: string, config: DrConfig };
+export const createDrMachine = ({
+                                    authority,
+                                    config,
+                                    name
+                                }: Pick<DrContext, "authority"> & { config?: DrConfig } & Pick<DrContext, "name">) => {
     return Machine<DrContext>(
         {
             id: `${name || authority}`,
@@ -44,20 +49,39 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
                 }
             },
 
-            on:{
+            on: {
                 SET_CONFIG: {
                     actions: ["setConfig"],
                     target: "discovering"
-                } ,
+                },  
+                ISSUER: {
+                    actions: ["setConfig"],
+                    target: "discovering"
+                },
             },
             states: {
                 init: {
-                    on:{
-                        '*':[
+                    invoke:
+                        {
+                            src:'loadLocalStorage'
+                    
+                        },
+                    on: {
+                        '*': [
+                            {
+                                cond: (context, event) => typeof context.client !== "undefined",
+
+                                target: "client"
+                            },
+                            {
+                                cond: (context, event) => typeof context.issuer !== "undefined",
+
+                                target: "issuer"
+                            },
                             {
                                 cond: (context, event) => typeof context.authority !== "undefined",
 
-                                target:"discovering"
+                                target: "discovering"
                             }
                         ]
                     }
@@ -88,14 +112,14 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
                     invoke: {
                         id: "dcr-service",
                         src: 'register',
-                        data:{
-                            registration_endpoint: (ctx:DrContext, event: {registration_endpoint?:string})=>event.registration_endpoint || ctx.issuer?.metadata?.registration_endpoint,
-                            redirect_uris: (ctx:DrContext, event: {redirect_uris?:string[]})=>event.redirect_uris || ctx.config.redirect_uris,
-                            client_name: (ctx:DrContext, event: {client_name?:string[]})=>event.client_name || ctx.config.client_name
+                        data: {
+                            registration_endpoint: (ctx: DrContext, event: { registration_endpoint?: string }) => event.registration_endpoint || ctx.issuer?.metadata?.registration_endpoint,
+                            redirect_uris: (ctx: DrContext, event: { redirect_uris?: string[] }) => event.redirect_uris || ctx.config.redirect_uris,
+                            client_name: (ctx: DrContext, event: { client_name?: string[] }) => event.client_name || ctx.config.client_name
                         },
                         onDone: {
                             target: "client",
-                            actions:["setClient"]
+                            actions: ["setClient"]
                         },
                         onError: {
                             target: "error"
@@ -107,12 +131,12 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
                 client: {
                     entry: ["onClient", "saveToLocalStorage"],
                     on: {
-                        "CLEAR":{
+                        "CLEAR": {
                             actions: ["clearClientFromContext", "clearLocalStorage"]
                         }
                     },
-                    type:'final',
-                    data:(ctx)=>{
+                    type: 'final',
+                    data: (ctx) => {
                         client: ctx.client
                     }
 
@@ -127,28 +151,40 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
             }
         },
         {
-            services:{
+            services: {
                 register: oidc_dr_registration_service,
                 oidc_discovery: oidc_discovery_service
             },
             actions: {
 
-                setIssuer: assign( {
-                    issuer:(context, event) =>{
+                setIssuer: assign({
+                    issuer: (context, event) => {
                         const {issuer} = event.data ? event.data : event;
                         return issuer;
                     }
                 }),
-                setClient: assign( {
-                    client:(context, event) =>{
+                setClient: assign({
+                    client: (context, event) => {
                         const {client} = event.data ? event.data : event;
                         return client;
                     }
                 }),
-                clearClientFromContext: assign(  {
-                    client:(context, event) => undefined
+                clearClientFromContext: assign({
+                    client: (context, event) => undefined
 
                 }),
+                loadLocalStorage: (context, event) => {
+                    const {issuer, client} = context;
+
+                    if (typeof localStorage !== "undefined") {
+                        localStorage.setItem(
+                            "useDr:issuer:metadata", JSON.stringify(issuer?.metadata || {})
+                        );
+                        localStorage.setItem(
+                            "useDr:client:metadata", JSON.stringify(client?.metadata || {})
+                        );
+                    }
+                },
                 saveToLocalStorage: (context, event) => {
                     const {issuer, client} = context;
 
@@ -173,17 +209,17 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
                         error: event.data?.error || event.error || event
                     };
                 }),
-                setConfig:  assign( {
-                    config:(context, event) =>{
-                        return  {
+                setConfig: assign({
+                    config: (context, event) => {
+                        return {
                             ...context.config,
                             ...event
                         }
                     },
                 }),
-                setAuthority:  assign( {
-                    authority: (context, event) =>{
-                        return  event.authority ||context.authority
+                setAuthority: assign({
+                    authority: (context, event) => {
+                        return event.authority || context.authority
                     }
                 }),
 
@@ -192,25 +228,22 @@ export const createDrMachine =({authority, config, name}:Pick<DrContext, "author
         }
     );
 }
-export const drMachine =createDrMachine;
- // check localstorage and login as soon as this file loads
-export function hydrateDrFromLocalStorage(send: any) {
-    if (typeof localStorage !== "undefined") {
-        const issMetadata= localStorage.getItem("dr:issuer:metadata");
-        const issuer= issMetadata && JSON.parse(issMetadata);
-        if(issuer){
-            send("ISSUER", {issuer: issuer});
-            const clientMetadata= localStorage.getItem("dr:client:metadata");
-            if(clientMetadata){
-                send("Client", {client: new issuer.Client(JSON.parse(clientMetadata))} )
-            }
+export type DrService = InterpreterFrom<typeof createDrMachine>
 
+// check localstorage and login as soon as this file loads
+export function hydrateDrFromLocalStorage({send, machine}: DrService) {
+    if (typeof localStorage !== "undefined") {
+        const issMetadata = localStorage.getItem(`mst:${machine.id}:issuer`);
+        const issuer = issMetadata && JSON.parse(issMetadata) as Issuer;
+        if (issuer) {
+            send("ISSUER", {issuer: issuer});
+            const clientMetadata = localStorage.getItem(`mst:${machine.id}:client`);
+            if (clientMetadata) {
+                send("Client", {...(JSON.parse(clientMetadata))})
             }
+        }
+
 
     }
 }
 
-// export const drService = interpret(drMachine);
-// drService.start();
-//  hydrateDrFromLocalStorage(drService.send);
-export type DrService= InterpreterFrom<typeof drMachine>

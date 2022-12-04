@@ -7,3 +7,4 @@ export default {
 
 export const AuthContext= OidcContext;
 export const AuthProvider= OidcProvider;
+export const Auth=auth;
