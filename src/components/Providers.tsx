@@ -27,13 +27,12 @@ import {
 import {DCRProps, Provider} from "./DCR";
 import {useAppLogger} from "../logger/useApplicationLogger";
 import {AnyInterpreter, send} from 'xstate';
-import {useInterpretWithLocalStorage} from "../machines/withLocalStorage";
-import {useInterpret} from "@xstate/react";
 import {styled} from '@mui/styles';
 
 import WebIcon from '@mui/icons-material/Web';
 import {useForm} from 'react-hook-form';
 import {AnyRecord} from "../models";
+ import {OidcContext} from "../auth/OidcProvider";
 
 
 const Search = styled('div')(({theme}) => ({
@@ -79,12 +78,16 @@ const StyledInputBase = styled(TextField)(({theme}) => ({
 }));
 
 const providerSelector = (state: any) => state.context.provider;
+const currentSelector = (state: any) => state.context.current;
 const providerNameSelector = (state: any) => state.context.provider?.name;
 const providersSelector = (state: any) => state.context.providers;
 
 export const ProviderSelector = (props: DCRProps) => {
-    const service = useInterpret(() => providersMachineWithDefaults);
-    const provider = useSelector(service, providerSelector);
+    
+    const {providers} = React.useContext(OidcContext);
+    const service = providers;
+     const provider = useSelector(service, providerSelector);
+     const current = useSelector(service, currentSelector);
     const providerName = useSelector(service, providerNameSelector);
     const allProviders = useSelector(service, providersSelector);
     const {send, state} = service;
@@ -105,8 +108,8 @@ export const ProviderSelector = (props: DCRProps) => {
                 <h1>{!provider && 'Please select a provider'}</h1>
 
                 <AddProvider service={service}/>
-                {provider?.machine &&
-                    <Provider {...props} drService={provider.machine} key={service.id}/>
+                {current &&
+                    <Provider {...props} drService={current} key={current.id}/>
                 }
 
             </Paper>

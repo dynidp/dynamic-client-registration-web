@@ -1,7 +1,6 @@
 import {createDrMachine} from "./oidc_dr_machine";
 import {AnyEventObject, AnyInterpreter, assign, interpret, PayloadSender, Receiver, Sender, spawn} from "xstate";
 import {oidcMachine, OidcMachine} from "../oidcProviderMachine";
-import {AppAuthCallback} from "../clientMachineAppAuth";
 import {tokenMachine} from "../tokenMachine";
 import { RedirectRequestHandler } from "@openid/appauth";
 

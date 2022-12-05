@@ -5,6 +5,7 @@ import { AuthService } from "../machines/authMachine";
 import { useActor, useSelector } from "@xstate/react";
 import { AnyState } from "xstate";
 import { Box, Paper, Typography } from "@mui/material";
+import {Services} from "../auth/OidcProvider";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -31,14 +32,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export interface ProfileProps {
-    authService: AuthService;
-
-}
-
+ 
 const profileSelector = (state: AnyState) => state?.context?.user;
 
-function Profile({ authService }: ProfileProps) {
+function Profile({ authService }: Pick<Services, "authService">) {
     const classNamees = useStyles();
     const { email, loginProvider, nickname, photo, organization } = useSelector(authService, profileSelector) || {};
 

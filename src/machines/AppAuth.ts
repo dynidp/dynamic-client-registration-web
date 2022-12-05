@@ -85,7 +85,7 @@ export class AppAuthJs {
         }
     }
 
-    makeAuthorizationRequest() {
+    public makeAuthorizationRequest() {
         // create a request
         let request = new AuthorizationRequest(this.authRequest);
         

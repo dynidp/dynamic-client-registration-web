@@ -1,15 +1,14 @@
 import React from "react";
 import makeStyles from '@mui/styles/makeStyles';
 import {RouteComponentProps} from "@reach/router";
-import {AuthService} from "../machines/authMachine";
 import {AnyState} from "xstate";
 import {Box} from "@mui/material";
 import SessionInfo from "../components/Session";
 import Profile from "../components/Profile";
 import Apps from "../components/Apps";
 import {NotificationsService} from "../machines/notificationsMachine";
-import ActionsContainer from "./ActionsContainer";
 import MangeAccount from "../components/AccountManage";
+import {Services} from "../auth/OidcProvider";
 
 const useStyles = makeStyles((theme) => ({
     box: {
@@ -55,12 +54,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export interface ProfileProps extends RouteComponentProps {
-    authService: AuthService;
-    notificationsService: NotificationsService,
-
-
-}
+export type ProfileProps = RouteComponentProps & Services;
 
 const profileSelector = (state: AnyState) => state?.context?.user;
 

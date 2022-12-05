@@ -8,7 +8,7 @@ import {
     Machine,
     assign
 } from "xstate";
-import { choose } from "xstate/lib/actions";
+import {choose} from "xstate/lib/actions";
 import {User, IdToken} from "../models";
 import {OidcService} from "./oidcProviderMachine";
 
@@ -37,12 +37,12 @@ export type AuthState = {
     expiresAt?: Date | null;
     isAuthenticating: boolean;
     errorType?: string;
-    error?: Error ;
+    error?: Error;
     config: {
         navigate: Function;
-        authProvider?: any ;
+        authProvider?: any;
         callbackDomain?: string;
-        [key:string]:any;
+        [key: string]: any;
     };
 };
 
@@ -80,6 +80,14 @@ export const authMachine = Machine<AuthState>(
                 }
             },
             authenticating: {
+                invoke: {
+                    id: "authenticate",
+                    src: "authenticate",
+                    onDone: {
+                        target: "authenticated"
+
+                    }
+                },
                 on: {
                     ERROR: "error",
                     AUTHENTICATED: "authenticated",
@@ -145,7 +153,7 @@ export const authMachine = Machine<AuthState>(
                 };
             }),
             saveUserToContext: assign((context, event) => {
-                const { authResult, user } = event.data ? event.data : event;
+                const {authResult, user} = event.data ? event.data : event;
                 const expiresAt = addSeconds(new Date(), authResult.expiresIn);
 
                 return {
@@ -162,7 +170,7 @@ export const authMachine = Machine<AuthState>(
                 };
             }),
             saveToLocalStorage: (context, event) => {
-                const { expiresAt, user } = context;
+                const {expiresAt, user} = context;
 
                 if (typeof localStorage !== "undefined") {
                     localStorage.setItem(
@@ -200,8 +208,9 @@ export type AuthMachine = typeof authMachine;
 
 // export type AuthService = InterpreterFrom<AuthMachine>;
 export type AuthService = OidcService;
-function addSeconds(date: Date, seconds: number):Date {
-    return   addMilliseconds(date, seconds*1000);
+
+function addSeconds(date: Date, seconds: number): Date {
+    return addMilliseconds(date, seconds * 1000);
 }
 
 const addMilliseconds = (date: Date, milliseconds: number) => {

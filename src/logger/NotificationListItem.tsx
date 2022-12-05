@@ -144,7 +144,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<{ dat
         console.error("failed to load data", this.props.data);
     }
 
-    render() {
+    render(element: JSX.Element) {
         if (this.state.hasError) {
             // You can render any custom fallback UI
             return <div>

@@ -1,23 +1,29 @@
-// import dotenv from "dotenv";
 import axios from "axios";
-import {stateLocalStorage} from "../machines/withLocalStorage";
-
-// dotenv.config();
-
-const httpClient = axios.create({
-  withCredentials: true,
-});
-
-httpClient.interceptors.request.use((config) => {
-
-  const accessToken = stateLocalStorage.get()?.context?.token?.access_token;
-  if(accessToken){
-    // @ts-ignore
-    config.headers["Authorization"] = `Bearer ${accessToken}`;
-  }
+import {Interpreter} from 'xstate'
+import {Token} from "../machines/oidcProviderMachine";
 
 
-  return config;
-});
+declare type TokenService=Interpreter<{token:Token}>;
+declare type Props={tokenService:TokenService};
 
-export { httpClient };
+function createHttpClient ({tokenService}: Props){
+  const httpClient = axios.create({
+    withCredentials: true,
+  });
+
+  httpClient.interceptors.request.use((config) => { 
+    const accessToken = tokenService.getSnapshot()?.context?.token?.access_token;
+    if(accessToken){
+      // @ts-ignore
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+
+
+    return config;
+  });
+  
+  return httpClient;
+}
+
+
+export { createHttpClient };

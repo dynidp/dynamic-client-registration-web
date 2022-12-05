@@ -23,83 +23,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export interface Props {
-    authService: AuthService;
     notificationsService: NotificationsService;
 }
 
-function generateUniqueID() {
-    // Math.random should be unique because of its seeding algorithm.
-    // Convert it to base 36 (numbers + letters), and grab the first 9 characters
-    // after the decimal.
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
-
+ 
 
 interface NotificationUpdatePayload {
 }
+ 
 
-const contextSelector = (state: AnyState) => state?.context;
-const appSelector = (state: AnyState) => state?.context?.app;
-const loaderSelector = (state: AnyState) => state?.context?.loader;
-const loginSelector = (state: AnyState) => state?.context?.oidc_client;
-const compareApp = (prevApp: ActorRef<any>, nextNext: ActorRef<any>) => prevApp?.id === nextNext?.id;
-const compare = (prevApp: any, nextNext: any) => nextNext?.id && prevApp?.id === nextNext?.id;
-
-const appsSelector = (state: AnyState) => state?.context?.apps;
-
-function doneDetails(event: AnyEventObject): Partial<NotificationResponseItem> {
-    if (event.type.indexOf('DONE.') > 0) {
-        const title = `done: ${event.type.replace('DONE.INVOKE.', '').replace(':INVOCATION[0]', '')}`
-        return {
-            severity: 'success',
-            title
-
-        }
-    }
-    return {};
-}
-
-
-function errorDetails(event: AnyEventObject): Partial<NotificationResponseItem> {
-    if (event.type.indexOf('ERROR.') > 0) {
-        const title = `${event.type.toLowerCase()
-            .replace(ActionTypes.ErrorCommunication, 'communication error: ')
-            .replace(ActionTypes.ErrorExecution, 'execution error: ')
-            .replace(ActionTypes.ErrorCustom, 'error: ')
-
-            .replace(':invocation[0]', '')} `;
-        return {
-            severity: 'error',
-            title
-
-        }
-    }
-    return {};
-}
-
-
-const emptySubscriber = {
-    subscribe: ((observer: (state: AnyState) => {}) => {
-                return {
-                    unsubscribe: () => {
-                    }
-                };
-        }
-    )
-
-}
-
-const NotificationsContainer: React.FC<Props> = ({authService, notificationsService}) => {
+const NotificationsContainer: React.FC<Props> = ({ notificationsService}) => {
     const classes = useStyles();
     const [notificationsState, sendNotifications] = useActor(notificationsService);
-    const app = useSelector(authService, appSelector, compareApp) ;
-    const loader = useSelector(authService, loaderSelector, compare) ;
-    const login = useSelector(authService, loginSelector, compare) ;
     // const apps = useSelector(app, appsSelector) || [];
-    useAppLogger(app as AppService  , sendNotifications);
-    useAppLogger(loader as AppService, sendNotifications);
-    useAppLogger(login as AppService, sendNotifications);
-
 
     function getType(state: AnyState) {
         return !state.event?.type ?
@@ -109,27 +45,7 @@ const NotificationsContainer: React.FC<Props> = ({authService, notificationsServ
                 state.event.type.toLowerCase()
     }
 
-    useEffect(() => {
-        authService.subscribe(state => {
-            if (!state || isUpdateType(state)) return;
-            sendNotifications({
-                type: "ADD", notification: {
-                    id: generateUniqueID(),
-                    title: `${state.value}`,
-                    severity: 'success',
-                    summary: `event: ${getType(state)}`,
-                    group: 'auth',
-                    icon: 'login',
-                    payload: getPayload(state.event, state.context),
-                    ...doneDetails(state.event),
-                    ...errorDetails(state.event)
-                }
-            })
-        })
-
-    }, [authService])
-
-
+     
     const handleChange = () => {
         if (notificationsState.matches("visible")) {
             sendNotifications("HIDE");
@@ -146,9 +62,7 @@ const NotificationsContainer: React.FC<Props> = ({authService, notificationsServ
     return (
 
             <Box>
-                <ErrorBoundary data={app}>
-                    {/*{app && <AppsListener app={app} notifications={notificationsService}/>}*/}
-                </ErrorBoundary>
+               
                 <FormControlLabel
                     control={<Switch checked={notificationsState.matches("visible")} onChange={handleChange}/>}
                     label="Show logger"

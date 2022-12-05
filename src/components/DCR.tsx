@@ -44,15 +44,16 @@ const useStyles = makeStyles((theme) => ({
 export type DCRClient = { request: AuthorizationRequestJson, issuer: Issuer, client: Client };
 
 export interface DCRProps {
-    onChange: ({request, issuer, client}: DCRClient) => void;
+    
+   onChange: ({request, issuer, client}: DCRClient) => void;
     notify: (notification: NotificationsEvents) => {}
 }
 
-const clientSelector = (state: any) => state.context.client;
-const issuerSelector = (state: any) => state.context.issuer;
-const configSelector = (state: any) => state.context.config;
-const errorSelector = (state: any) => state.context.error;
-const nameSelector = (state: any) => state.context.name;
+const clientSelector = (state: any) => state.context?.client;
+const issuerSelector = (state: any) => state.context?.issuer;
+const configSelector = (state: any) => state.context?.config;
+const errorSelector = (state: any) => state.context?.error;
+const nameSelector = (state: any) => state.context?.name;
 
 
 export interface DCRProviderProps {

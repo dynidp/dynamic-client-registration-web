@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import makeStyles from '@mui/styles/makeStyles';
-import {AuthService} from "../machines/authMachine";
 import { useSelector} from "@xstate/react";
 import {AnyState} from "xstate";
 import JsonView from "./JsonTreeViewer";
 import {Paper, Typography} from "@mui/material";
+import {Services} from "../auth/OidcProvider";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,14 +32,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
  
-export interface SessionProps {
-  authService: AuthService;
 
-}
- 
 
 const jwtSelector=(state:AnyState)=>state?.context;
-function SessionInfo({authService}: SessionProps) {
+function SessionInfo({authService}: Pick<Services, "authService">) {
   const classes = useStyles();
   const {idToken, mfaToken} = useSelector(authService, jwtSelector) ||{};
   

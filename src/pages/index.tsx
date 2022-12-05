@@ -1,26 +1,25 @@
 // import logo from "./logo.svg";
 import React, {useEffect, useContext} from "react";
-import "./App.css";
-import "./styles/globals.css";
-import SignIn from "./components/SignIn";
-import {authMachine, AuthService} from "./machines/authMachine";
+import "../App.css";
+import "../styles/globals.css";
+import SignIn from "../components/SignIn";
 import {Router} from "@reach/router";
 import {useMachine} from "@xstate/react";
 import {AnyState} from "xstate";
 import {Box, Container, responsiveFontSizes, Stack} from "@mui/material";
-import {SnackbarContext, snackbarMachine} from "./machines/snackbarMachine";
-import AlertBar from "./components/AlertBar";
-import {notificationMachine} from "./machines/notificationsMachine";
-import NotificationsContainer from "./containers/NotificationsContainer";
-import ProfileContainer from "./containers/ProfileContainer";
-import EventsContainer from "./containers/ActionsContainer";
-import {useInterpretWithLocalStorage} from "./machines/withLocalStorage";
-import {PrivateRoute} from "./routes";
+import {SnackbarContext, snackbarMachine} from "../machines/snackbarMachine";
+import AlertBar from "../components/AlertBar";
+import {notificationMachine} from "../machines/notificationsMachine";
+import NotificationsContainer from "../containers/NotificationsContainer";
+import ProfileContainer from "../containers/ProfileContainer";
+import {PrivateRoute} from "../routes";
 
 import {ThemeProvider, Theme, StyledEngineProvider, createTheme} from '@mui/material/styles';
 
-import {Auth, AuthContext, AuthProvider} from "./auth";
+import {Auth, AuthContext, AuthProvider} from "../auth";
 import { green, purple } from '@mui/material/colors';
+import {ProviderSelector} from "../components/Providers";
+import makeStyles from "@mui/styles/makeStyles";
 
 
 declare module '@mui/styles/defaultTheme' {
@@ -28,6 +27,24 @@ declare module '@mui/styles/defaultTheme' {
     interface DefaultTheme extends Theme {
     }
 }
+
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        marginTop: theme.spacing(8),
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        margin: theme.spacing(1)
+    },
+    paperRow: {
+        marginTop: theme.spacing(8),
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        margin: theme.spacing(1)
+    }
+}));
 const theme = createTheme({
     palette: {
         // secondary: {
@@ -88,33 +105,10 @@ const App = () => {
     );
 };
 const AppWithService = () => {
-    const authService = useContext(AuthContext);
-    const [, sendSnackbar, snackbarService] = useMachine(snackbarMachine);
-    const [, sendNotification, notificationService] = useMachine(notificationMachine);
+    const services = useContext(AuthContext);
+    const classes = useStyles();
 
-    const showSnackbar = (payload: SnackbarContext) => sendSnackbar({type: "SHOW", ...payload});
-
-    useEffect(() => {
-        if (authService) {
-            const subscription = authService.subscribe((state: AnyState) => {
-                // simple state logging
-                console.log(state);
-                showSnackbar({message: state.value.toString(), severity: "info"})
-
-            });
-            return subscription.unsubscribe;
-
-        }
-        return () => {
-        };
-
-    }, [authService]);
-
-    if (authService) {
-
-
-        return (<div>
-            <EventsContainer authService={authService} notificationsService={notificationService}/>
+    return (<div>
 
             <Box>
                 <Stack
@@ -127,29 +121,31 @@ const AppWithService = () => {
 
                     <Router>
                         <PrivateRoute default as={ProfileContainer} path={"/"}
-                                      authService={authService}
-                                      notificationsService={notificationService}
+                                      {...services}
                         />
-                        <SignIn path={"/signin"} authService={authService} notificationsService={notificationService} />
-                        <ProfileContainer path="/profile" authService={authService} notificationsService={notificationService}/>
+                        <SignIn path={"/signin"}  {...services} />
+                        <ProfileContainer path="/profile"  {...services}/>
 
                     </Router>
+
+                      {/*  <div className={classes.paperRow}>
+
+                            <ProviderSelector  notify={services.notificationsService.send}   />
+
+                        </div>*/}
                     </Container>
 
                     <Container  maxWidth="sm">
-                        <NotificationsContainer authService={authService}
-                                                notificationsService={notificationService}/>
+                        <NotificationsContainer  {...services}/>
                     </Container>
                 </Stack>
 
             </Box>
 
-            <AlertBar snackbarService={snackbarService}/>
+            <AlertBar snackbarService={services.snackbar}/>
 
         </div>)
-    } else {
-        return <div>loading..</div>
-    }
-}
+    } 
+
 
 export default App;

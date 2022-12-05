@@ -3,23 +3,25 @@ import {createDrMachine, DrConfig, DrContext} from "./oidc_dr_machine";
 import {AnyRecord} from "../../models";
 import {omit} from "lodash/fp";
 import {appMachine} from "../appMachine";
+import {hydrateMachine} from "../../boot/hydrate";
 
-export type DrActor = ActorRefFrom<typeof appMachine>;
+export type DrActor = ActorRefFrom<typeof createDrMachine> | InterpreterFrom<typeof createDrMachine>;
 
-export type OP = { authority: string, name: string, info: string, machine?: DrActor } & Partial<DrContext>;
+export type OP = { authority: string, name: string, info: string } & Partial<DrContext>;
 
 
 declare type ProvidersMachineContext = {
     providers: { [key: string]: OP }
-    provider?: OP
+    provider?: OP,
+    current?: DrActor
 }
 
 
 export const providersMachine =()=> createMachine<ProvidersMachineContext>({
     id: "provider",
-  
+    predictableActionArguments:true,
     initial: "idle",
-
+    
     states: {
         idle: {
             on: {
@@ -42,16 +44,18 @@ export const providersMachine =()=> createMachine<ProvidersMachineContext>({
         },
       
         selected: {
-
-            on: {
-                always: [{
-                    cond: (ctx: ProvidersMachineContext, event) => (!ctx.provider?.machine && true) || false,
-                 
-                    actions:['assignMachine']
-                }]
+            always:{
+                target:'current'
             }
+           
         },
-        loaded: {}
+        current:{
+            entry:['assignMachine'],
+
+            invoke:{
+                src:'current'
+            }
+        }
     },
 
     on: {
@@ -59,26 +63,17 @@ export const providersMachine =()=> createMachine<ProvidersMachineContext>({
             target: '.selected',
             actions: assign((context: any, event: Partial<OP> & {name:string}) => {
                 // Use the existing subreddit actor if one already exists
-                let provider = context.providers[event.name];
-                
-                if (provider?.machine) {
-                    return {
-                        ...context,
-                        provider
-                    };
-                }
-                const providerConfig={
-                    ...provider, ...event 
+                let exists = context.providers[event.name] ||{};
+                 
+                const provider={
+                    ...exists, ...event 
                 }
 
-                provider = {
-                    ...providerConfig,
-                    machine: event.machine || spawn(createDrMachine(providerConfig),  {sync: true})
-                }
                 return {
+                    ...context,
                     providers: {
                         ...context.providers,
-                        provider
+                        [event.name] : provider
                     },
                     provider
                 };
@@ -88,17 +83,17 @@ export const providersMachine =()=> createMachine<ProvidersMachineContext>({
 },
 
     {
+        services:{
+            current:(ctx:any)=>ctx.current!, 
+        },
         actions:{
+          
             assignMachine: assign((ctx:any, event:any) => {
                 let providerConfig= ctx.provider!;
-                const machine= providerConfig.machine || spawn(createDrMachine(providerConfig), {sync: true});
-                const provider = {
-                    ...providerConfig,
-                    machine: machine
-                };
+                const machine=  spawn(hydrateMachine(createDrMachine(providerConfig)), {sync: true});
                 return  {
                     ...ctx,
-                    provider
+                    current:machine
                 }
             })
         }
@@ -109,15 +104,14 @@ export const providersMachine =()=> createMachine<ProvidersMachineContext>({
 const redirect_uri = (provider:string)=>`${window.location.origin}/callback/${provider}`
 const scope = "openid gigya_web";
 
-const config =(provider:string)=> {return {
+const config =(provider:string, extra?: AnyRecord)=> {return {
     client_name: "default-static-js-client-spa",
     redirect_uris: [redirect_uri(provider)],
     token_endpoint_auth_method: 'none',
     "grant_types": ["authorization_code"],
     "response_types": ["code token idToken"],
     "scope": scope,
-    "initiate_login_uri": "https://dev-mea4uj8q.us.auth0.com/u/login"
-
+     ...(extra ||{})
 }};
 
 const defaults = {
@@ -138,7 +132,9 @@ const defaults = {
         name: 'auth0',
         info: 'hosted',
         authority: 'https://dev-mea4uj8q.us.auth0.com/oidc',
-        config: config('auth0')
+        config: config('auth0', {
+            "initiate_login_uri": "https://dev-mea4uj8q.us.auth0.com/u/login" 
+        })
     }
 };
  const wthDefaults=providersMachine()

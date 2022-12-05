@@ -16,6 +16,7 @@ export interface SnackbarContext {
 
 export const snackbarMachineConfig: MachineConfig<SnackbarContext, SnackbarSchema, SnackbarEvents> =
     {
+        predictableActionArguments:true,
         id: "snackbar",
         initial: "invisible",
         context: {
