@@ -1,7 +1,6 @@
- # Gigya - Dynamic Registration Web
+ #  Dynamic Registration Web
  
- - b2b configuration and authorization
- - client side implemantation with Gigya sdk
+ - Dynamic Registration of OIDC client with any provider
  
  ## Live site
  
