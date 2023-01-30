@@ -8,7 +8,6 @@ Deployed to https://web.gid.dynidp.com/
 
 # Usage
 ### Select existing provider
-<div style="width:60px;display=flex">
 
 ![image](https://user-images.githubusercontent.com/29256880/215363151-e1f1c401-fb97-44bf-a151-a725166f8c14.png)
 
