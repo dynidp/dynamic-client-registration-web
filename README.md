@@ -8,6 +8,8 @@ Deployed to https://web.gid.dynidp.com/
 
 # Usage
 ### Select existing provider
+<div style="width:60px;display=flex">
+
 ![image](https://user-images.githubusercontent.com/29256880/215363151-e1f1c401-fb97-44bf-a151-a725166f8c14.png)
 
 ### or, Add an issuer, then fill up redirect urls and scope
@@ -28,7 +30,7 @@ Deployed to https://web.gid.dynidp.com/
 ### Click on the tracing event to get more data
 
 ![image](https://user-images.githubusercontent.com/29256880/215363593-ac217050-2428-4a5f-a44c-23b95a7af838.png)
-
+</div>
 ## Local development
 
 In the project directory, you can run:
