@@ -1,36 +1,45 @@
- #  Dynamic Registration Web
+
+
+#  Dynamic Registration Web
  
- - Dynamic Registration of OIDC client with any provider
+Dynamic Registration of OIDC clients  with any supported provider
  
  ## Live site
  
 Deployed to https://web.gid.dynidp.com/
 
-# Usage
-### Select existing provider
+# Usage By Screen Shots
 
-![image](https://user-images.githubusercontent.com/29256880/215363151-e1f1c401-fb97-44bf-a151-a725166f8c14.png)
+### Create or choose a provider
+|Select a provider | [Or] Add a new issuer  |
+|--|--|
+|  | Then fill up redirect URLs and scope  |
+|![image](https://user-images.githubusercontent.com/29256880/215363151-e1f1c401-fb97-44bf-a151-a725166f8c14.png)   |  ![image](https://user-images.githubusercontent.com/29256880/215363190-8ed4848f-1716-4e48-92d7-9f41eed6b374.png)
+|  |  
 
-### or, Add an issuer, then fill up redirect urls and scope
-![image](https://user-images.githubusercontent.com/29256880/215363190-8ed4848f-1716-4e48-92d7-9f41eed6b374.png)
+### Check OP details in the provider section
 
-### A new section with the newly registered client will be appred 
-![image](https://user-images.githubusercontent.com/29256880/215363280-24561be1-043a-40b0-a6a0-6ffbee1b8ead.png)
+|    | | |
+|--|--|--|
+|The `OP details` as provided by discovery API | ![image](https://user-images.githubusercontent.com/29256880/215365512-37fb855f-1c38-442f-8056-ef1f67e36ad0.png) | |
+|The newly `registered client`   | ![image](https://user-images.githubusercontent.com/29256880/215363280-24561be1-043a-40b0-a6a0-6ffbee1b8ead.png)| |
+| the `authorization request` to be sent to the issuer | ![image](https://user-images.githubusercontent.com/29256880/215363339-15270c1a-51d7-4c17-b314-2b92b3b60b0f.png) |
 
-### In the right tab you can see the authorization request to be sent to the issuer
-![image](https://user-images.githubusercontent.com/29256880/215363339-15270c1a-51d7-4c17-b314-2b92b3b60b0f.png)
+### Sigh in
+| Then click on the `Sigh in button` |  |
+|--|--|
+| ![image](https://user-images.githubusercontent.com/29256880/215363443-4a1ff5b2-edad-4125-968f-24648d242eb5.png?width=50&hight=50)|  |
 
-### Then click on the `Sigh in button`
-![image](https://user-images.githubusercontent.com/29256880/215363443-4a1ff5b2-edad-4125-968f-24648d242eb5.png)
+### Trace
 
-### Tracing
-![image](https://user-images.githubusercontent.com/29256880/215363575-a8e68c4f-09a3-4f7d-bada-2baf37356af5.png)
+| Tracing Bar |  |
+|--|--|
+| In the right side you can find tracing events of your jurney | ![image](https://user-images.githubusercontent.com/29256880/215363575-a8e68c4f-09a3-4f7d-bada-2baf37356af5.png) |
+||
+|Click on the tracing event to get more data| ![image](https://user-images.githubusercontent.com/29256880/215363593-ac217050-2428-4a5f-a44c-23b95a7af838.png)|
 
-### Click on the tracing event to get more data
 
-![image](https://user-images.githubusercontent.com/29256880/215363593-ac217050-2428-4a5f-a44c-23b95a7af838.png)
-</div>
-## Local development
+# Local development
 
 In the project directory, you can run:
 
