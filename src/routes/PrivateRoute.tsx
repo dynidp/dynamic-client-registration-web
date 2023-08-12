@@ -5,14 +5,14 @@ import {LoginRoute} from "./LoginRoute";
 import {AuthService} from "../machines/authMachine";
 import { RouteComponentProps } from "@reach/router";
 import {NotificationsService} from "../machines/notificationsMachine";
-export interface Props extends RouteComponentProps {
-    authService: AuthService;
-    notificationsService: NotificationsService,
+import {Services} from "../auth/OidcProvider";
+
+declare type Props= RouteComponentProps & Services &{
     as: any;
 
+}; 
 
-}
-export function PrivateRoute({authService,notificationsService, as: Comp, ...props}: Props) {
+export function PrivateRoute({authService,authProvider, as: Comp, ...props}: Props) {
     const [state, send] = useActor(authService);
     useEffect(() => {
         if (state.matches('unauthorized')) {
@@ -20,16 +20,12 @@ export function PrivateRoute({authService,notificationsService, as: Comp, ...pro
         }
     }, [state]);
 
-    switch (true) {
-        case state == undefined:
-            return <LoginRoute notificationsService={notificationsService} authService={authService}/>;
-
-        case state.matches('loggedIn'):
-            return  <Comp {...props} authService={authService} notificationsService={notificationsService}/>
-      
+    switch (authProvider) {
+        case null:
+            return <Comp {...props}  authService={authService}/>;
  
         default:
-            return <LoginRoute  {...props}  authService={authService} notificationsService={notificationsService}/>
+            return <LoginRoute authProvider={authProvider!} {...props}  authService={authService} />
     }
 
 

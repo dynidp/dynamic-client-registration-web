@@ -20,6 +20,7 @@ import {Auth, AuthContext, AuthProvider} from "../auth";
 import { green, purple } from '@mui/material/colors';
 import {ProviderSelector} from "../components/Providers";
 import makeStyles from "@mui/styles/makeStyles";
+import Callback from "../components/Callback";
 
 
 declare module '@mui/styles/defaultTheme' {
@@ -107,7 +108,7 @@ const App = () => {
 const AppWithService = () => {
     const services = useContext(AuthContext);
     const classes = useStyles();
-
+    const {current, authProvider}= services;
     return (<div>
 
             <Box>
@@ -120,19 +121,20 @@ const AppWithService = () => {
                     <Container  >
 
                     <Router>
-                        <PrivateRoute default as={ProfileContainer} path={"/"}
+                       {/* <PrivateRoute default as={ProfileContainer} path={"/"}
                                       {...services}
-                        />
-                        <SignIn path={"/signin"}  {...services} />
+                        />*/}
+                        {current && <Callback path={"/callback"} current={current}  {...services} />}
+                        {authProvider && <SignIn default path={"/signin"}  authProvider={authProvider} {...services} />}
                         <ProfileContainer path="/profile"  {...services}/>
 
                     </Router>
 
-                      {/*  <div className={classes.paperRow}>
-
+                        <div className={classes.paperRow}>
+                      
                             <ProviderSelector  notify={services.notificationsService.send}   />
-
-                        </div>*/}
+                      
+                        </div>
                     </Container>
 
                     <Container  maxWidth="sm">

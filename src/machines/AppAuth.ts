@@ -7,6 +7,7 @@ import {AuthorizationNotifier, AuthorizationRequest, AuthorizationResponse,
     BaseTokenRequestHandler, RedirectRequestHandler, StringMap, TokenRequest, TokenResponse, TokenRequestHandler, AuthorizationRequestHandler, AuthorizationRequestJson } from "@openid/appauth";
 import {Client, Issuer} from "./oidc-client/oidc_dr_machine";
 import {NotificationsService} from "./notificationsMachine";
+import {AuthorizationServiceConfigurationJson} from "@openid/appauth/src/authorization_service_configuration";
 /**
  * Snackbar options.
  */
@@ -40,12 +41,12 @@ export class AppAuthJs {
     private tokenResponse: TokenResponse|undefined;
     private configuration: AuthorizationServiceConfiguration;
 
-    constructor( private issuer:Issuer,         
+    constructor( private issuer:AuthorizationServiceConfigurationJson,         
                 public authRequest:AuthorizationRequestJson,
                 private  notificationService: NotificationsService,
                 private showMessage: (message:string)=> void
     ) {
-        this.configuration= new AuthorizationServiceConfiguration(issuer.metadata as any);
+        this.configuration= new AuthorizationServiceConfiguration(issuer as any);
          this.notifier = new AuthorizationNotifier();
         const redirectHandler=  new RedirectRequestHandler() ;
         // redirectHandler.locationLike= this.getLocation(this.showMessage);

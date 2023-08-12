@@ -10,14 +10,11 @@ import Typography from "@mui/material/Typography";
 import makeStyles from '@mui/styles/makeStyles';
 import Container from "@mui/material/Container";
 import {useInterpret, useSelector} from "@xstate/react";
-import {AuthService} from "../machines/authMachine";
 import {ErrorOutlined} from "@mui/icons-material";
-import {Google, WindowTwoTone} from "@mui/icons-material";
-import {NotificationsService} from "../machines/notificationsMachine";
-import {AppAuthJs} from "../machines/AppAuth";
-import {DCRClient} from "./DCR";
-import {ProviderSelector} from "./Providers";
- 
+import {Services} from "../auth/OidcProvider";
+import { useAppLogger} from "../logger/useApplicationLogger";
+import {AnyInterpreter} from "xstate";
+
 const useStyles = makeStyles((theme) => ({
     paper: {
         marginTop: theme.spacing(8),
@@ -46,39 +43,31 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export interface SignInProps extends RouteComponentProps {
-    authService: AuthService;
-    notificationsService: NotificationsService
-}
+
 
  const messageSelector = (state: any) => state.context.message;
- 
-export default function SignIn({authService, notificationsService}: SignInProps) {
+const serviceSelector = (state: any) => state.context.service;
+export type SignInProps = RouteComponentProps &  Services;
+
+export default function SignIn({authProvider, authService, notificationsService}: SignInProps) {
     const classes = useStyles();
-    const [appAuth, setAppAuth] = useState<AppAuthJs>();
+    useAppLogger(authProvider as AnyInterpreter, notificationsService.send);
  
-     const message = useSelector(authService, messageSelector);
+    const message = useSelector(authService, messageSelector);
  
     const showMessage=(message: string) =>{
         // @ts-ignore
         notificationsService.send({type:'ADD', notification:{ group:"app-auth", title: message, payload:{}, icon:'login', severity:'info'}});
     } 
       
-       const  onClientChange= ({request, issuer, client}:DCRClient) => {
-            if (client) {
-    
-                // @ts-ignore
-                setAppAuth(new AppAuthJs( issuer, request, notificationsService, showMessage));
-            }
-            return () => {
-            };
-        }
+      
 
 
   /* 
     };*/
     const handle_oidc_dr = () => {
-        appAuth?.makeAuthorizationRequest();
+        // @ts-ignore
+        authProvider &&  authProvider.send({type:"LOGIN"})
     };
     return (
         <Container component="main" >
@@ -104,12 +93,7 @@ export default function SignIn({authService, notificationsService}: SignInProps)
 
                 {message && <span><ErrorOutlined/> {message}</span>}
             </Container>
-
-            <div className={classes.paperRow}>
-
-                <ProviderSelector  notify={notificationsService.send}  onChange={onClientChange} />
-
-            </div>
+ 
         </Container>
     );
 }

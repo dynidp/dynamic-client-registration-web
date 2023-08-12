@@ -17,6 +17,11 @@ import {NotificationsService} from "../machines/notificationsMachine";
 import {AppAuthJs} from "../machines/AppAuth";
 import {DCRClient} from "./DCR";
 import {ProviderSelector} from "./Providers";
+import {Services} from "../auth/OidcProvider";
+import {DrActor} from "../machines/oidc-client/providers_machine";
+import {useAppLogger} from "../logger/useApplicationLogger";
+import {AnyInterpreter} from "xstate";
+import {AuthorizationRequestJson} from "@openid/appauth/built/authorization_request";
  
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -46,23 +51,78 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export interface SignInProps extends RouteComponentProps {
-    authService: AuthService;
-    notificationsService: NotificationsService
-}
+export type CallbackProps = RouteComponentProps & {current: DrActor} & Services;
+ 
 
  const messageSelector = (state: any) => state.context.message;
- 
-export default function Callback({authService, notificationsService}: SignInProps) {
+const clientSelector = (state: any) => state.context?.client;
+const issuerSelector = (state: any) => state.context?.issuer;
+const configSelector = (state: any) => state.context?.config;
+const errorSelector = (state: any) => state.context?.error;
+const nameSelector = (state: any) => state.context?.name;
+
+export default function Callback({current, notificationsService}: CallbackProps) {
     const classes = useStyles();
+    useAppLogger(current as AnyInterpreter | undefined, notificationsService.send);
+
+    const client = useSelector(current, clientSelector);
+    const issuer = useSelector(current, issuerSelector);
+    const config = useSelector(current, configSelector);
+    const error = useSelector(current, errorSelector);
+
+    const [codeRequest, setCodeRequest] = useState<AuthorizationRequestJson>({
+        client_id: client?.client_id,
+        scope: config?.scope || client?.scope,
+        redirect_uri: config?.redirect_uri || client?.redirect_uris[0],
+        response_type: 'code',
+        state: 'dcr_web_client',
+        extras: {'prompt': 'none', 'access_type': 'offline'}
+
+    });
+
+
+
+    useEffect(() => {
+        if (client) {
+
+            // @ts-ignore
+            setCodeRequest({
+                ...codeRequest,
+                client_id: client?.client_id,
+                scope: config?.scope || client?.scope,
+                redirect_uri: config?.redirect_uri || client?.redirect_uris[0],
+
+
+            });
+        }
+        return () => {
+        };
+    }, [client]);
+    
     const [appAuth, setAppAuth] = useState<AppAuthJs>();
  
-     const message = useSelector(authService, messageSelector);
+     const message = useSelector(current, messageSelector);
  
     const showMessage=(message: string) =>{
         // @ts-ignore
         notificationsService.send({type:'ADD', notification:{ group:"app-auth", title: message, payload:{}, icon:'login', severity:'info'}});
-    } 
+    }
+    useEffect(() => {
+        if (codeRequest) {
+
+            // @ts-ignore
+            setAppAuth(new AppAuthJs({
+                ...codeRequest,
+                client_id: client?.client_id,
+                scope: config?.scope || client?.scope,
+                redirect_uri: config?.redirect_uri || client?.redirect_uris[0],
+
+
+            }));
+        }
+        return () => {
+        };
+    }, [codeRequest]);
       
        const  onClientChange= ({request, issuer, client}:DCRClient) => {
             if (client) {
@@ -78,7 +138,8 @@ export default function Callback({authService, notificationsService}: SignInProp
   /* 
     };*/
     const handle_oidc_dr = () => {
-        appAuth?.makeAuthorizationRequest();
+        appAuth?.checkForAuthorizationResponse();
+        appAuth?.makeTokenRequest();
     };
     return (
         <Container component="main" >

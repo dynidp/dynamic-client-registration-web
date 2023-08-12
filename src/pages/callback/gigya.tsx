@@ -7,7 +7,7 @@ export const GigyaCallback =()=>{
 
     React.useEffect(()=>{
         const queryString = window.location.search.substring(1); // includes '?'
-        const path = ['/', queryString].join('#');
+        const path = ['/callback', queryString].join('#');
         setTimeout(function() {
             navigate(path);
         }, 1000);

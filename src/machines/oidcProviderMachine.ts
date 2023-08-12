@@ -6,9 +6,9 @@ const {log} = actions;
 export interface AuthMachineSchema {
     states: {
         loading: {};
-        verifying:{};
+        verifying: {};
         unauthorized: {};
-        reauth:{};
+        reauth: {};
         login: {};
         signup: {};
         logout: {};
@@ -47,6 +47,7 @@ export interface Token {
 }
 
 export interface AuthMachineContext {
+    service: any,
     user?: User;
     idToken?: IdToken;
     token?: Token;
@@ -56,12 +57,11 @@ export interface AuthMachineContext {
     [key: string]: any;
 }
 
- 
 
-export const createAuthMachine = <T extends AuthMachineContext = AuthMachineContext>(context: T) => {
+export const createAuthMachine = <T extends AuthMachineContext = AuthMachineContext>(context: T, id:string= 'auth') => {
     const authMachine = Machine<AuthMachineContext & T, AuthMachineSchema, AuthMachineEvents>(
         {
-            id: 'auth',
+            id: id,
             initial: "loading",
             context: {...context},
             states: {
@@ -75,12 +75,12 @@ export const createAuthMachine = <T extends AuthMachineContext = AuthMachineCont
                         src: 'loader',
                         onDone: [{
                             target: "verifying",
-                            actions: ['onLoaded'],
+                            actions: ['onLoaded', 'setService'],
                         }]
                     },
                     on: {
                         LOADED: {
-                            target: "refreshing", actions: ['onLoaded'],
+                            target: "verifying", actions: ['onLoaded', 'setService'],
                         }
                     }
                 },
@@ -89,7 +89,7 @@ export const createAuthMachine = <T extends AuthMachineContext = AuthMachineCont
                         id: "check-session",
                         src: "check",
                         onDone: {actions: ["setToken"]},
-                        onError: {target: "unauthorized", actions: ["logEventData","clearUserFromContext"]},
+                        onError: {target: "unauthorized", actions: ["logEventData", "clearUserFromContext"]},
 
                     },
                     entry: ["startVerifying"],
@@ -109,7 +109,7 @@ export const createAuthMachine = <T extends AuthMachineContext = AuthMachineCont
                     }
 
                 },
-                reauth:{
+                reauth: {
                     entry: ['onLoginEntry', 'assignLoginService', log('login')],
                     onDone: [{target: "token.exchange", actions: "setLoginResponse"}],
 
@@ -142,7 +142,7 @@ export const createAuthMachine = <T extends AuthMachineContext = AuthMachineCont
 
                     },
 
-                }, 
+                },
                 signup: {
                     entry: ['onSignupEntry', 'assignSignupService', log('signup')],
                     onDone: [{target: "token.exchange", actions: "setLoginResponse"}],
@@ -198,7 +198,7 @@ export const createAuthMachine = <T extends AuthMachineContext = AuthMachineCont
                         }
 
                     }
-                }, 
+                },
                 authorized: {
                     id: "authorized",
                     entry: [log("authorized"), "onAuthorizedEntry"],
@@ -260,6 +260,9 @@ export const createAuthMachine = <T extends AuthMachineContext = AuthMachineCont
 
 
                 },
+                setService: assign((ctx: any, event: any) => ({
+                    service: (ctx: any, event: any) => event.data || event
+                })),
                 setToken: assign((ctx: any, event: any) => ({
                     token: {
                         id_token: event.data.idToken,

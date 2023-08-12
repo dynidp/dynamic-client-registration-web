@@ -45,7 +45,7 @@ export type DCRClient = { request: AuthorizationRequestJson, issuer: Issuer, cli
 
 export interface DCRProps {
     
-   onChange: ({request, issuer, client}: DCRClient) => void;
+   // onChange: ({request, issuer, client}: DCRClient) => void;
     notify: (notification: NotificationsEvents) => {}
 }
 
@@ -57,13 +57,13 @@ const nameSelector = (state: any) => state.context?.name;
 
 
 export interface DCRProviderProps {
-    onChange: ({request, issuer, client}: DCRClient) => void;
+    // onChange: ({request, issuer, client}: DCRClient) => void;
     notify: (notification: NotificationsEvents) => {};
     drService: DrActor | DrService
 }
 
 
-export function Provider({onChange, notify, drService}: DCRProviderProps) {
+export function Provider({ notify, drService}: DCRProviderProps) {
     const classes = useStyles();
     useAppLogger(drService as AnyInterpreter | undefined, notify);
 
@@ -106,13 +106,13 @@ export function Provider({onChange, notify, drService}: DCRProviderProps) {
         };
     }, [client]);
 
-    useEffect(() => {
+   /* useEffect(() => {
         if (authRequest) {
             onChange({request: authRequest, issuer, client});
         }
         return () => {
         };
-    }, [authRequest]);
+    }, [authRequest]);*/
 
     useEffect(() => {
         if (error) {

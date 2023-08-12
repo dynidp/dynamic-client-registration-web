@@ -9,10 +9,20 @@ export interface Client extends Subscribable<{ type: 'CALLBACK' } | { type: 'TOK
 
 
 export interface Issuer {
-    metadata: AnyRecord;
+    metadata: AuthorizationServiceConfiguration;
 
 
 };
+
+export interface AuthorizationServiceConfiguration {
+    authorization_endpoint: string;
+    token_endpoint: string;
+    revocation_endpoint: string;
+    end_session_endpoint?: string;
+    userinfo_endpoint?: string;
+    registration_endpoint?: string;
+}
+
 
 
 export type DrConfig = {
@@ -27,6 +37,7 @@ const defaults = {
 };
 
 export type DrContext = { name?: string; authority: string, client?: Client, issuer?: Issuer, error?: string, errorType?: string, config: DrConfig };
+export type DrClient = Required<Omit<Omit<DrContext, "error">, "errorType">>
 export const createDrMachine = ({
                                     authority,
                                     config,
@@ -136,11 +147,11 @@ export const createDrMachine = ({
                         }
                     },
                     type: 'final',
-                    data: (ctx) => {
-                        client: ctx.client
-                    }
+                    data: (ctx) => {return {
+                        ...ctx
+                    }}
 
-                },
+                } ,
                 error: {
                     entry: [
                         "saveErrorToContext",
