@@ -36,7 +36,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: production-files
-          path: ./dist
+          path: | 
+            ./dist
+            CNAME
+           
       
 
   deploy:
@@ -48,11 +51,13 @@ jobs:
        deployments: write
        pages: write
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: production-files
-          path: ./dist
+       - uses: actions/download-artifact@v4
+            with:
+              path: dist
+              merge-multiple: true
+      - name: Display structure of downloaded files
+        run: ls -R dist
+
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
