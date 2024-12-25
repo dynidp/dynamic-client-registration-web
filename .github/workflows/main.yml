@@ -25,13 +25,12 @@ jobs:
  
       - name: Install
         run: yarn build
-      
+      - name: Copy CNAME
+        run: cp CNAME dist/CNAME
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v4
         with:
-          path: | 
-            dist/**/*
-            CNAME
+          path: dist
            
       
 
@@ -47,6 +46,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
             path: dist
+            
             
       - name: Display structure of downloaded files
         run: ls -R dist
