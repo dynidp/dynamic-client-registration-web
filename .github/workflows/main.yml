@@ -51,14 +51,15 @@ jobs:
        deployments: write
        pages: write
     steps:
-       - uses: actions/download-artifact@v4
-            with:
-              path: dist
-              merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+            path: dist
+            merge-multiple: true
+            
       - name: Display structure of downloaded files
         run: ls -R dist
-
-
+      
+      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
