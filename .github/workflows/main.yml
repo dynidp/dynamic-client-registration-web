@@ -31,6 +31,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: dist
+          name: dist
            
       
 
@@ -44,17 +45,16 @@ jobs:
        pages: write
     steps:
       - uses: actions/download-artifact@v4
-        with:
-            path: dist
+        id: artf
             
             
       - name: Display structure of downloaded files
-        run: ls -R dist
+        run: ls -R 
       
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir:  ${{steps.artf.outputs.download-path	}}
           publish_branch: gh-pages
